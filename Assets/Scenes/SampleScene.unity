@@ -9922,6 +9922,7 @@ GameObject:
   - component: {fileID: 430431632}
   - component: {fileID: 430431631}
   - component: {fileID: 430431630}
+  - component: {fileID: 430431634}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -10013,7 +10014,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.01
-  far clip plane: 5000
+  far clip plane: 10000
   field of view: 70
   orthographic: 0
   orthographic size: 5
@@ -10040,13 +10041,33 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 430431629}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.12966095, y: 0, z: 0, w: 0.9915584}
-  m_LocalPosition: {x: -0.09, y: 9.8, z: -15.2}
+  m_LocalRotation: {x: 0.08064829, y: -0, z: -0, w: 0.99674267}
+  m_LocalPosition: {x: -0.090026855, y: 6.9763417, z: -16.16306}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1655724544}
-  m_LocalEulerAnglesHint: {x: 14.9, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 23.1, y: 0, z: 0}
+--- !u!114 &430431634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 430431629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62f6d2f560358384dab781502a743b57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraThrustOffset
+  normalThrustOffset: {x: 0, y: 0, z: -2}
+  boostThrustOffset: {x: 0, y: 0, z: -6}
+  reverseThrustOffset: {x: 0, y: 0, z: 2}
+  positionSmoothTime: 0.3
+  normalFOV: 70
+  boostFOV: 80
+  reverseFOV: 55
+  fovSmoothTime: 0.2
 --- !u!1 &447271572
 GameObject:
   m_ObjectHideFlags: 0
@@ -34296,19 +34317,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5763953146476158145, guid: 49d0b2e8d6cdd16458fc0be42a40d88b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.25
+      value: -2.052229
       objectReference: {fileID: 0}
     - target: {fileID: 5763953146476158145, guid: 49d0b2e8d6cdd16458fc0be42a40d88b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -10815
+      value: -10814.977
       objectReference: {fileID: 0}
     - target: {fileID: 5763953146476158145, guid: 49d0b2e8d6cdd16458fc0be42a40d88b, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.9927066
       objectReference: {fileID: 0}
     - target: {fileID: 5763953146476158145, guid: 49d0b2e8d6cdd16458fc0be42a40d88b, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0.12055557
       objectReference: {fileID: 0}
     - target: {fileID: 5763953146476158145, guid: 49d0b2e8d6cdd16458fc0be42a40d88b, type: 3}
       propertyPath: m_LocalRotation.y
@@ -34320,7 +34341,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5763953146476158145, guid: 49d0b2e8d6cdd16458fc0be42a40d88b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 13.848
       objectReference: {fileID: 0}
     - target: {fileID: 5763953146476158145, guid: 49d0b2e8d6cdd16458fc0be42a40d88b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -39297,8 +39318,8 @@ MonoBehaviour:
   - {fileID: 4160918421933323279, guid: 1b67386ff5ac56c4faf75b28f2618e99, type: 3}
   - {fileID: 4614113641764008901, guid: 599f2ab1f45f281469c20e46eb030b3d, type: 3}
   playerCenter: {fileID: 1655724544}
-  innerRadius: 1000
-  outerRadius: 2000
+  innerRadius: 2000
+  outerRadius: 4000
   totalAsteroids: 10000
   maxSpawnAttemptsPerAsteroid: 20
   maxGargantuanCount: 100
@@ -39376,6 +39397,7 @@ MonoBehaviour:
   yawSpeed: 5
   rollSpeed: 40
   invertMouseY: 0
+  boostPercentage: 1000
 --- !u!54 &1655724543
 Rigidbody:
   m_ObjectHideFlags: 0

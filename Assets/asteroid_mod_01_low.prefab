@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1641565247606333400}
   - component: {fileID: 3890201795990798804}
   - component: {fileID: 1114952676315253099}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: asteroid_mod_01_low
   m_TagString: Untagged
   m_Icon: {fileID: 0}
