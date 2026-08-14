@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9990ec14845e47247a8538161fdd3536
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73167
+  packageName: Star Sparrow Modular Spaceship
+  packageVersion: 5.0
+  assetPath: Assets/StarSparrow/Materials/Standard/StarSparrow_Blue_Standard.mat
+  uploadId: 939704

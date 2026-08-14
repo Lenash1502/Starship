@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b0c870cebdded34aa767ac4665ba746, type: 3}
+  m_Name: EngineSounds
+  m_EditorClassIdentifier: Assembly-CSharp::SoundEvent
+  clips:
+  - {fileID: 8300000, guid: 55b9713f0a4a2064b92acfe4a967ec76, type: 3}
+  - {fileID: 8300000, guid: 76340a5e60e79bd489b725eb9a22c2be, type: 3}
+  volume: 1
+  volumeJitter: 0
+  pitch: 1
+  pitchJitter: 0
+  spatialBlend: 1
+  minDistance: 5
+  maxDistance: 500
+  mixerGroup: {fileID: 1899768819694575371, guid: 68d569b764e9e574abefd8fea5d8016f, type: 2}

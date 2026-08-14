@@ -1,0 +1,29 @@
+fileFormatVersion: 2
+guid: c2b566cfddcd5492cb4d897297ca3ebe
+timeCreated: 1463871036
+licenseType: Store
+AudioImporter:
+  serializedVersion: 6
+  defaultSettings:
+    loadType: 0
+    sampleRateSetting: 0
+    sampleRateOverride: 44100
+    compressionFormat: 1
+    quality: 1
+    conversionMode: 0
+  platformSettingOverrides: {}
+  forceToMono: 0
+  normalize: 1
+  preloadAudioData: 1
+  loadInBackground: 0
+  3D: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 43104
+  packageName: Sci-fi Evolution Gift Pack
+  packageVersion: 1.1
+  assetPath: Assets/Sci-fi Evolution Gift Pack/Gas Fusion Delay 2.wav
+  uploadId: 118946
