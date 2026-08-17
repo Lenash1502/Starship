@@ -108,7 +108,6 @@ public class LaserWeapon : WeaponBase
     {
         Vector3 fireDirection = currentMuzzle.transform.up;
 
-        float hitDistance = weaponRange;
         Vector3 impactPoint = currentMuzzle.transform.position + (fireDirection * weaponRange);
         Vector3 impactNormal = -fireDirection;
         bool hitSomething = false;
@@ -121,7 +120,6 @@ public class LaserWeapon : WeaponBase
             if (hit.transform.root != transform.root)
             {
                 impactPoint = hit.point;
-                hitDistance = hit.distance;
                 impactNormal = hit.normal;
                 hitSomething = true;
 
@@ -132,7 +130,9 @@ public class LaserWeapon : WeaponBase
             }
         }
 
-        currentMuzzle.FireVisuals(hitDistance);
+        // The muzzle stretches its beam to end here, so the visual matches the raycast exactly --
+        // at the hit when there is one, at the edge of weaponRange when the shot goes wide.
+        currentMuzzle.FireVisuals(impactPoint);
         RaiseFired(currentMuzzle.transform.position);
 
         if (hitSomething && impactPrefab != null)

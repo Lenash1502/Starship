@@ -801,6 +801,8 @@ MonoBehaviour:
   aimSmoothSpeed: 15
   mainVisualParticles: {fileID: 255502980}
   muzzleFlashParticles: {fileID: 255502980}
+  matchBeamToShot: 1
+  beamLengthCalibration: 1
 --- !u!33 &95399544
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -6632,6 +6634,8 @@ MonoBehaviour:
   aimSmoothSpeed: 15
   mainVisualParticles: {fileID: 530090128}
   muzzleFlashParticles: {fileID: 530090128}
+  matchBeamToShot: 1
+  beamLengthCalibration: 1
 --- !u!33 &218861962
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -6925,6 +6929,8 @@ MonoBehaviour:
   aimSmoothSpeed: 15
   mainVisualParticles: {fileID: 906516157}
   muzzleFlashParticles: {fileID: 906516157}
+  matchBeamToShot: 1
+  beamLengthCalibration: 1
 --- !u!33 &308070217
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -22656,6 +22662,8 @@ MonoBehaviour:
   aimSmoothSpeed: 15
   mainVisualParticles: {fileID: 1136739164}
   muzzleFlashParticles: {fileID: 1136739164}
+  matchBeamToShot: 1
+  beamLengthCalibration: 1
 --- !u!33 &485222213
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -78177,6 +78185,8 @@ MonoBehaviour:
   aimSmoothSpeed: 15
   mainVisualParticles: {fileID: 766208715}
   muzzleFlashParticles: {fileID: 766208715}
+  matchBeamToShot: 1
+  beamLengthCalibration: 1
 --- !u!33 &923359982
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -78689,6 +78699,8 @@ MonoBehaviour:
   aimSmoothSpeed: 15
   mainVisualParticles: {fileID: 469135009}
   muzzleFlashParticles: {fileID: 469135009}
+  matchBeamToShot: 1
+  beamLengthCalibration: 1
 --- !u!33 &944759202
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -98777,6 +98789,8 @@ MonoBehaviour:
   aimSmoothSpeed: 15
   mainVisualParticles: {fileID: 1288923332}
   muzzleFlashParticles: {fileID: 1288923332}
+  matchBeamToShot: 1
+  beamLengthCalibration: 1
 --- !u!33 &1113201525
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -99140,6 +99154,8 @@ MonoBehaviour:
   aimSmoothSpeed: 15
   mainVisualParticles: {fileID: 1973035493}
   muzzleFlashParticles: {fileID: 1973035493}
+  matchBeamToShot: 1
+  beamLengthCalibration: 1
 --- !u!33 &1147499115
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -114603,6 +114619,8 @@ MonoBehaviour:
   aimSmoothSpeed: 15
   mainVisualParticles: {fileID: 1023936130}
   muzzleFlashParticles: {fileID: 1023936130}
+  matchBeamToShot: 1
+  beamLengthCalibration: 1
 --- !u!33 &1303138097
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -125617,6 +125635,8 @@ MonoBehaviour:
   aimSmoothSpeed: 15
   mainVisualParticles: {fileID: 272522892}
   muzzleFlashParticles: {fileID: 272522892}
+  matchBeamToShot: 1
+  beamLengthCalibration: 1
 --- !u!33 &1471813131
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -140706,6 +140726,8 @@ MonoBehaviour:
   aimSmoothSpeed: 15
   mainVisualParticles: {fileID: 1150639305}
   muzzleFlashParticles: {fileID: 1150639305}
+  matchBeamToShot: 1
+  beamLengthCalibration: 1
 --- !u!33 &1601565618
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -151408,6 +151430,8 @@ MonoBehaviour:
   aimSmoothSpeed: 15
   mainVisualParticles: {fileID: 338890652}
   muzzleFlashParticles: {fileID: 338890652}
+  matchBeamToShot: 1
+  beamLengthCalibration: 1
 --- !u!33 &1821886319
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -172599,6 +172623,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 770506788674793851, guid: ee18129a661c04645ac5aa54b9ea2d36, type: 3}
+      propertyPath: beamLengthCalibration
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1629617911282511091, guid: ee18129a661c04645ac5aa54b9ea2d36, type: 3}
+      propertyPath: InitialModule.size3D
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2853608963404788205, guid: ee18129a661c04645ac5aa54b9ea2d36, type: 3}
+      propertyPath: InitialModule.startSizeY.scalar
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3029715054815666515, guid: ee18129a661c04645ac5aa54b9ea2d36, type: 3}
       propertyPath: LightsModule.light
       value: 
@@ -172611,6 +172647,10 @@ PrefabInstance:
       propertyPath: LightsModule.light
       value: 
       objectReference: {fileID: 410087040}
+    - target: {fileID: 4005535833740899398, guid: ee18129a661c04645ac5aa54b9ea2d36, type: 3}
+      propertyPath: InitialModule.startSizeY.scalar
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4625210684401256867, guid: ee18129a661c04645ac5aa54b9ea2d36, type: 3}
       propertyPath: LightsModule.light
       value: 
@@ -172619,10 +172659,18 @@ PrefabInstance:
       propertyPath: LightsModule.light
       value: 
       objectReference: {fileID: 410087040}
+    - target: {fileID: 4993351772605259816, guid: ee18129a661c04645ac5aa54b9ea2d36, type: 3}
+      propertyPath: beamLengthCalibration
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5435229605552224635, guid: ee18129a661c04645ac5aa54b9ea2d36, type: 3}
       propertyPath: LightsModule.light
       value: 
       objectReference: {fileID: 410087040}
+    - target: {fileID: 5530004104371641478, guid: ee18129a661c04645ac5aa54b9ea2d36, type: 3}
+      propertyPath: beamLengthCalibration
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6283823278211358886, guid: ee18129a661c04645ac5aa54b9ea2d36, type: 3}
       propertyPath: LightsModule.light
       value: 
@@ -172683,6 +172731,10 @@ PrefabInstance:
       propertyPath: LightsModule.light
       value: 
       objectReference: {fileID: 410087040}
+    - target: {fileID: 8239357674345569713, guid: ee18129a661c04645ac5aa54b9ea2d36, type: 3}
+      propertyPath: beamLengthCalibration
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 8450295782939295495, guid: ee18129a661c04645ac5aa54b9ea2d36, type: 3}
       propertyPath: m_Name
       value: StarSparrow5
