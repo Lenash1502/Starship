@@ -139,11 +139,19 @@ public class ShipWeaponManager : MonoBehaviour
                 }
                 else if (currentFireMode == FireMode.Sequential)
                 {
-                    if (primaryWeapons[currentWeaponIndex].TriggerFire(targetPoint))
+                    // Walk the ring until a weapon accepts. A turreted gun rejects whenever it is
+                    // still slewing or masked by our own hull, and stopping at the first rejection
+                    // would park the rotation on that gun and silence the whole ship until it came
+                    // back on target.
+                    for (int attempt = 0; attempt < primaryWeapons.Count; attempt++)
                     {
-                        currentWeaponIndex = (currentWeaponIndex + 1) % primaryWeapons.Count;
+                        int index = (currentWeaponIndex + attempt) % primaryWeapons.Count;
+                        if (!primaryWeapons[index].TriggerFire(targetPoint)) continue;
+
+                        currentWeaponIndex = (index + 1) % primaryWeapons.Count;
                         nextFireTime = Time.time + (masterFireRate / primaryWeapons.Count);
                         successfullyFired = true;
+                        break;
                     }
                 }
 

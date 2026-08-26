@@ -57,6 +57,11 @@ public class LaserWeapon : WeaponBase
         // REJECT OVERRIDE: If the coroutine is already running, completely ignore the click!
         if (isCurrentlyFiring) return false;
 
+        // Every barrel is either still slewing onto the target or pointed through our own hull.
+        // Rejecting rather than firing means no cooldown is burned and, in Sequential mode, the
+        // manager moves straight on to a gun that does have a shot.
+        if (!AnyMuzzleClear()) return false;
+
         if (IsBurstFiring && weaponMuzzles.Length > 1)
         {
             StartCoroutine(BurstFireRoutine(targetPoint));
@@ -77,7 +82,13 @@ public class LaserWeapon : WeaponBase
 
         for (int i = 0; i < weaponMuzzles.Length; i++)
         {
-            if (weaponMuzzles[i] != null) ExecuteFire(weaponMuzzles[i], targetPoint);
+            // Re-checked per shot rather than once for the burst: the turret keeps swivelling while
+            // the burst plays out, so a barrel that was clear when the trigger went down can have
+            // the wing in front of it three shots later.
+            if (weaponMuzzles[i] != null && weaponMuzzles[i].HasClearShot())
+            {
+                ExecuteFire(weaponMuzzles[i], targetPoint);
+            }
 
             // Wait between shots
             if (i < weaponMuzzles.Length - 1) yield return new WaitForSeconds(delayBetweenShots);
@@ -95,13 +106,24 @@ public class LaserWeapon : WeaponBase
 
         foreach (var muzzle in weaponMuzzles)
         {
-            if (muzzle != null) ExecuteFire(muzzle, targetPoint);
+            // A weapon with several barrels fires the ones that have a shot and holds the rest,
+            // rather than the whole gun going quiet because one barrel is masked.
+            if (muzzle != null && muzzle.HasClearShot()) ExecuteFire(muzzle, targetPoint);
         }
 
         // Lock the weapon out for its entire cooldown duration
         yield return new WaitForSeconds(FireRate);
 
         isCurrentlyFiring = false; // Unlock the weapon
+    }
+
+    private bool AnyMuzzleClear()
+    {
+        foreach (var muzzle in weaponMuzzles)
+        {
+            if (muzzle != null && muzzle.HasClearShot()) return true;
+        }
+        return false;
     }
 
     private void ExecuteFire(WeaponMuzzle currentMuzzle, Vector3 targetPoint)

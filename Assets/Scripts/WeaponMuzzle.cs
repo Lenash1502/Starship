@@ -11,14 +11,29 @@ public enum MuzzleBeamMode
     ParticleStretch
 }
 
-// Each muzzle rotates itself to face the crosshair (rather than inheriting the gun's rotation) so
-// its attached visual effects point the right way; the gun (WeaponBase/its subclasses) still owns
-// everything else -- fire rate, damage, hit detection, and so on.
+// A muzzle points itself at the crosshair so its attached visual effects point the right way; the
+// gun (WeaponBase/its subclasses) still owns everything else -- fire rate, damage, hit detection,
+// and so on.
+//
+// If the muzzle sits under a Turret rig, the turret does the pointing instead, and the muzzle just
+// rides along on the pitch joint. That is deliberate: the turret is the thing that knows which
+// orientations would bury the barrel in the hull, and a muzzle free-gimballing on top of it would
+// aim straight back out of the arc the turret just clamped to.
 public class WeaponMuzzle : MonoBehaviour
 {
     [Header("Mechanical Settings")]
-    [Tooltip("How smoothly the barrel tracks the crosshair.")]
+    [Tooltip("How smoothly the barrel tracks the crosshair. Ignored when a Turret above this muzzle is doing the aiming.")]
     public float aimSmoothSpeed = 15f;
+
+    [Header("Line of Fire")]
+    [Tooltip("Only used when this muzzle has no Turret above it. How far past the pivot the bore clears its own housing -- the self-check starts here, so the gun is not blocked by the wing it is embedded in.")]
+    public float boreClearance = 1.5f;
+
+    [Tooltip("Only used when this muzzle has no Turret above it. How far ahead to look for our own hull.")]
+    public float selfCheckRange = 80f;
+
+    [Tooltip("Only used when this muzzle has no Turret above it. Widens the check so grazing shots along the hull count as blocked too.")]
+    public float selfCheckRadius = 0.3f;
 
     [Header("Visual Effects")]
     public ParticleSystem mainVisualParticles;
@@ -141,8 +156,14 @@ public class WeaponMuzzle : MonoBehaviour
     private float resolvedBeamWidth;
     private Coroutine beamRoutine;
 
+    // The turret this muzzle is mounted on, if any. Null for a fixed gun bolted straight to the hull.
+    private Turret turret;
+    private readonly RaycastHit[] selfHits = new RaycastHit[8];
+
     private void Awake()
     {
+        turret = GetComponentInParent<Turret>();
+
         if (mainVisualParticles != null)
         {
             mainVisualRenderer = mainVisualParticles.GetComponent<ParticleSystemRenderer>();
@@ -156,11 +177,41 @@ public class WeaponMuzzle : MonoBehaviour
 
     public void AimAt(Vector3 targetPoint)
     {
+        // Turreted: the rig swivels and this muzzle inherits it, arc limits and all.
+        if (turret != null)
+        {
+            turret.Track(targetPoint);
+            return;
+        }
+
         Vector3 direction = (targetPoint - transform.position).normalized;
         if (direction != Vector3.zero)
         {
             transform.up = Vector3.Slerp(transform.up, direction, Time.deltaTime * aimSmoothSpeed);
         }
+    }
+
+    // Whether this muzzle is allowed to shoot right now: pointed close enough to the target, and not
+    // pointed through our own ship. The weapon asks before it commits to a shot, so a masked muzzle
+    // costs no cooldown, no sound and no beam -- it just keeps tracking until the shot opens up.
+    public bool HasClearShot()
+    {
+        if (turret != null) return turret.HasFiringSolution();
+
+        // Fixed gun: no arc to check, but it can still have a wingtip in front of it. The check
+        // starts past boreClearance so the housing this gun is embedded in never blocks it.
+        Vector3 origin = transform.position + transform.up * boreClearance;
+        int count = Physics.SphereCastNonAlloc(origin, selfCheckRadius, transform.up, selfHits,
+            selfCheckRange, ~0, QueryTriggerInteraction.Ignore);
+
+        Transform shipRoot = transform.root;
+        for (int i = 0; i < count; i++)
+        {
+            Collider hit = selfHits[i].collider;
+            if (hit != null && hit.transform.root == shipRoot) return false;
+        }
+
+        return true;
     }
 
     // Called once per shot with the world point the shot landed on (the hit, or the end of the
