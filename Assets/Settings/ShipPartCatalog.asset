@@ -1,0 +1,826 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd6c94e2b153dd04cb5089b486b5e91d, type: 3}
+  m_Name: ShipPartCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::ShipPartCatalog
+  sourceFolder: Assets/Prefabs/ShipParts
+  parts:
+  - prefab: {fileID: 4189909472231937518, guid: 3bd14948fc2810c4d98e6f22a5465069, type: 3}
+    category: Booster
+    variant: 0
+    side: 0
+    displayName: Booster
+  - prefab: {fileID: 9031219866090205507, guid: b439f4b301ce06241a561013b0ed2c33, type: 3}
+    category: Booster
+    variant: 1
+    side: 1
+    displayName: Booster 1 L
+  - prefab: {fileID: 4509963483574992341, guid: f9bc5e38ba4915a46b899d6dac1be3c5, type: 3}
+    category: Booster
+    variant: 1
+    side: 2
+    displayName: Booster 1 R
+  - prefab: {fileID: 2794482025980482207, guid: 44d3f7c006bc3014c98bea8192246ad9, type: 3}
+    category: Booster
+    variant: 2
+    side: 1
+    displayName: Booster 2 L
+  - prefab: {fileID: 3144269388539885802, guid: 7e422bdd6247d924ebbd6a4f9b65a64f, type: 3}
+    category: Booster
+    variant: 2
+    side: 2
+    displayName: Booster 2 R
+  - prefab: {fileID: 6267050083850795167, guid: e1cb49cc4887250479b05152beeb161f, type: 3}
+    category: Core
+    variant: 1
+    side: 0
+    displayName: Core 1
+  - prefab: {fileID: 5754314724437510384, guid: 33dbd27d055518840b92bcaf10e36b05, type: 3}
+    category: Core
+    variant: 2
+    side: 0
+    displayName: Core 2
+  - prefab: {fileID: 271235335325171797, guid: 58fef2343fac18a44877df7121db7c82, type: 3}
+    category: Core
+    variant: 3
+    side: 0
+    displayName: Core 3
+  - prefab: {fileID: 1157381843212090605, guid: 86771952d2f676c45843238c418a8eee, type: 3}
+    category: Core
+    variant: 4
+    side: 0
+    displayName: Core 4
+  - prefab: {fileID: 5371292234539476123, guid: 16f11e53f819d2a4f958176625eff703, type: 3}
+    category: Core
+    variant: 5
+    side: 0
+    displayName: Core 5
+  - prefab: {fileID: 8227690667636732487, guid: ee500314e35de5d4cb75ba8d6e2e389c, type: 3}
+    category: Core
+    variant: 6
+    side: 0
+    displayName: Core 6
+  - prefab: {fileID: 4276251643029110256, guid: a262d44487ec5304e8f2e23ded71a3d2, type: 3}
+    category: Core
+    variant: 7
+    side: 0
+    displayName: Core 7
+  - prefab: {fileID: 9089747133124553868, guid: 23cdbc94348324941adaf3ee93eb4df4, type: 3}
+    category: Core
+    variant: 8
+    side: 0
+    displayName: Core 8
+  - prefab: {fileID: 2343972129156778026, guid: 1bbaa271f6fd56347986ec2b96701f51, type: 3}
+    category: Core
+    variant: 9
+    side: 0
+    displayName: Core 9
+  - prefab: {fileID: 2917412968036848302, guid: 9eeb54cb74886944da17ef3a05162fc6, type: 3}
+    category: Core
+    variant: 10
+    side: 0
+    displayName: Core 10
+  - prefab: {fileID: 4274158327124166326, guid: ba44b8ec1bd14814387fcfd5a2fe8232, type: 3}
+    category: Core
+    variant: 11
+    side: 0
+    displayName: Core 11
+  - prefab: {fileID: 6148602027379853391, guid: 2b02006a058766d4d8706db2baa97acd, type: 3}
+    category: Core
+    variant: 12
+    side: 0
+    displayName: Core 12
+  - prefab: {fileID: 8744604582425065899, guid: cd326007dbc54074399dd5976fc8c329, type: 3}
+    category: Core
+    variant: 13
+    side: 0
+    displayName: Core 13
+  - prefab: {fileID: 2728041266374086431, guid: 4ff467040e8204d4db9ff75af5240690, type: 3}
+    category: Core
+    variant: 14
+    side: 0
+    displayName: Core 14
+  - prefab: {fileID: 7928872585811204899, guid: c9065825783d3fe44804599f628d4ed0, type: 3}
+    category: Core
+    variant: 15
+    side: 0
+    displayName: Core 15
+  - prefab: {fileID: 2439012039640186352, guid: 0b29b89e2089b1645af449290aee081c, type: 3}
+    category: Core
+    variant: 16
+    side: 0
+    displayName: Core 16
+  - prefab: {fileID: 3572803724615074346, guid: 4917398765e231f4cb67503b6e60863d, type: 3}
+    category: Core
+    variant: 17
+    side: 0
+    displayName: Core 17
+  - prefab: {fileID: 7648015640139445332, guid: 75a9dc57682574d4aa173b456a1e6d0b, type: 3}
+    category: Core
+    variant: 18
+    side: 0
+    displayName: Core 18
+  - prefab: {fileID: 1406718423089619545, guid: 4c166458579075b438032b44b37457a5, type: 3}
+    category: Core
+    variant: 19
+    side: 0
+    displayName: Core 19
+  - prefab: {fileID: 9119681968525407760, guid: b64de4500d9125940bad2d828dc9097a, type: 3}
+    category: Core
+    variant: 20
+    side: 0
+    displayName: Core 20
+  - prefab: {fileID: 2542591896416767789, guid: 801570e3864dd334fbbc9a8fad4f1f79, type: 3}
+    category: Core
+    variant: 21
+    side: 0
+    displayName: Core 21
+  - prefab: {fileID: 4697949256943736248, guid: 2ef640c956cd26a459bc2141bd45687e, type: 3}
+    category: Core
+    variant: 22
+    side: 0
+    displayName: Core 22
+  - prefab: {fileID: 556708012938939491, guid: d576c3317f2081949972f2ec34aca7c7, type: 3}
+    category: Core
+    variant: 23
+    side: 0
+    displayName: Core 23
+  - prefab: {fileID: 2597722212581303018, guid: e6de78faa885f2744bcbd20b20f53697, type: 3}
+    category: Core
+    variant: 24
+    side: 0
+    displayName: Core 24
+  - prefab: {fileID: 1746814648999276468, guid: 253286ecd3809594abce5b2fdec58ba3, type: 3}
+    category: Core
+    variant: 25
+    side: 0
+    displayName: Core 25
+  - prefab: {fileID: 4868141468275523091, guid: 48cd3871138904d47aa77dbeab45e625, type: 3}
+    category: Core
+    variant: 26
+    side: 0
+    displayName: Core 26
+  - prefab: {fileID: 3120375440123764369, guid: 6bee96c545591a04fbace6d9dbf61129, type: 3}
+    category: Core
+    variant: 27
+    side: 0
+    displayName: Core 27
+  - prefab: {fileID: 3460378183715205501, guid: 66217cd62cd6b43408ad739f41020058, type: 3}
+    category: Core
+    variant: 28
+    side: 0
+    displayName: Core 28
+  - prefab: {fileID: 3288460683186523719, guid: 290f3874296ada9468ad5d115c650a69, type: 3}
+    category: Core
+    variant: 29
+    side: 0
+    displayName: Core 29
+  - prefab: {fileID: 115728442684097397, guid: 91915634e4bb67a4abd1da361a9603b6, type: 3}
+    category: Core
+    variant: 30
+    side: 0
+    displayName: Core 30
+  - prefab: {fileID: 4465964037647942524, guid: 71ab6bbd4e8aa334bbd5a0efd3b507bd, type: 3}
+    category: CoreAttachment
+    variant: 0
+    side: 0
+    displayName: Core Attachment
+  - prefab: {fileID: 5177415882481977183, guid: d021fe54dc41dfe4d93e53e676855ab9, type: 3}
+    category: Engine
+    variant: 0
+    side: 0
+    displayName: Engine
+  - prefab: {fileID: 7791589251745108687, guid: 054e865ed41de5f44b55088782d780e4, type: 3}
+    category: Engine
+    variant: 1
+    side: 1
+    displayName: Engine 1 L
+  - prefab: {fileID: 6102595232596736698, guid: 2c0c9fba9ac485b43bf22f2e244cf0c9, type: 3}
+    category: Engine
+    variant: 1
+    side: 2
+    displayName: Engine 1 R
+  - prefab: {fileID: 3870974935065946085, guid: 0ef4d1dbf8c114242ad7532e3ee95703, type: 3}
+    category: Engine
+    variant: 2
+    side: 1
+    displayName: Engine 2 L
+  - prefab: {fileID: 3657049203287016240, guid: 0c168de1eef9d244897636180232ef80, type: 3}
+    category: Engine
+    variant: 2
+    side: 2
+    displayName: Engine 2 R
+  - prefab: {fileID: 8007672465433325133, guid: 4c5fd14f77180fa4db519e1a49b06d6b, type: 3}
+    category: Engine
+    variant: 3
+    side: 1
+    displayName: Engine 3 L
+  - prefab: {fileID: 7554336097005074098, guid: 3470e8df15fa5d3478e7e92dcb8faf0e, type: 3}
+    category: Engine
+    variant: 3
+    side: 2
+    displayName: Engine 3 R
+  - prefab: {fileID: 1837709744456892217, guid: e0428afffcd6d1842a33155544a2a7c2, type: 3}
+    category: Engine
+    variant: 4
+    side: 0
+    displayName: Engine 4
+  - prefab: {fileID: 5921635861650752034, guid: 680826267a11c5a42a18fe5ebc10b279, type: 3}
+    category: Engine
+    variant: 5
+    side: 1
+    displayName: Engine 5 L
+  - prefab: {fileID: 7312663270862863056, guid: f774786ec6be3984abb42805b38bb7e8, type: 3}
+    category: Engine
+    variant: 5
+    side: 2
+    displayName: Engine 5 R
+  - prefab: {fileID: 8873240635484119133, guid: 77a905f38348be44faca30cb670408cf, type: 3}
+    category: Engine
+    variant: 6
+    side: 0
+    displayName: Engine 6
+  - prefab: {fileID: 9183804989195061541, guid: 17821ebb81867924c9e0c79a2fef04df, type: 3}
+    category: Engine
+    variant: 7
+    side: 0
+    displayName: Engine 7
+  - prefab: {fileID: 3003868532520939029, guid: 1de9ebcf29321c34f8dbcc6da381d017, type: 3}
+    category: Engine
+    variant: 8
+    side: 1
+    displayName: Engine 8 L
+  - prefab: {fileID: 8053491680580442821, guid: c626f10e5db8a854fb006857e888d830, type: 3}
+    category: Engine
+    variant: 8
+    side: 2
+    displayName: Engine 8 R
+  - prefab: {fileID: 5528462118025421158, guid: a82238c91dbe51e4a97608d9663006af, type: 3}
+    category: Engine
+    variant: 9
+    side: 1
+    displayName: Engine 9 L
+  - prefab: {fileID: 3270226581521809454, guid: a7a371ff67905a44eadbc8481d4d56df, type: 3}
+    category: Engine
+    variant: 9
+    side: 2
+    displayName: Engine 9 R
+  - prefab: {fileID: 7694843230885563365, guid: d2e97d075cc57b14a94a8bd9ef89b26e, type: 3}
+    category: Engine
+    variant: 10
+    side: 1
+    displayName: Engine 10 L
+  - prefab: {fileID: 211598681840535441, guid: 512565da60d8a6a4c9a22fdda0ed99e7, type: 3}
+    category: Engine
+    variant: 10
+    side: 2
+    displayName: Engine 10 R
+  - prefab: {fileID: 8237204234600922122, guid: f33c399b871d74f4797612fcd82b0403, type: 3}
+    category: Engine
+    variant: 11
+    side: 1
+    displayName: Engine 11 L
+  - prefab: {fileID: 6370597851158006781, guid: 46635ed772e82ab4a99cee67e7571f77, type: 3}
+    category: Engine
+    variant: 11
+    side: 2
+    displayName: Engine 11 R
+  - prefab: {fileID: 8596078347368054, guid: 6068d98815ceee941a2c708848768846, type: 3}
+    category: Engine
+    variant: 12
+    side: 1
+    displayName: Engine 12 L
+  - prefab: {fileID: 757733290234054439, guid: e1f4504b244ffcd42b58867d6fbdea2f, type: 3}
+    category: Engine
+    variant: 12
+    side: 2
+    displayName: Engine 12 R
+  - prefab: {fileID: 2458705375563055102, guid: 74c81720660da67469db7cd1a588f3ff, type: 3}
+    category: Engine
+    variant: 13
+    side: 1
+    displayName: Engine 13 L
+  - prefab: {fileID: 8677845656160395065, guid: 555596140b6a4d548b40a85f2a83ce2b, type: 3}
+    category: Engine
+    variant: 13
+    side: 2
+    displayName: Engine 13 R
+  - prefab: {fileID: 8283445718789486338, guid: 135cfe979055ce04e8953a6b3612284a, type: 3}
+    category: Fin
+    variant: 0
+    side: 0
+    displayName: Fin
+  - prefab: {fileID: 6874073826233216238, guid: 5fa6dc961a0a3a040b8bf46c64946de1, type: 3}
+    category: Fin
+    variant: 1
+    side: 1
+    displayName: Fin 1 L
+  - prefab: {fileID: 4712113975251363790, guid: 127ad18ea62144c4d91a38b72b35dcd9, type: 3}
+    category: Fin
+    variant: 1
+    side: 2
+    displayName: Fin 1 R
+  - prefab: {fileID: 5010817774890393815, guid: c2cdd6da04b30b04a8f2ec1914665969, type: 3}
+    category: Fin
+    variant: 2
+    side: 1
+    displayName: Fin 2 L
+  - prefab: {fileID: 7495845888161979296, guid: a5250b3bfac08a946b8177a341b9aca8, type: 3}
+    category: Fin
+    variant: 2
+    side: 2
+    displayName: Fin 2 R
+  - prefab: {fileID: 1492212273501667005, guid: e4cd61f802c96d04c8505ebd89084b85, type: 3}
+    category: Fin
+    variant: 3
+    side: 1
+    displayName: Fin 3 L
+  - prefab: {fileID: 2955481004325253920, guid: d89855d6c18f80847925a01053a68b4c, type: 3}
+    category: Fin
+    variant: 3
+    side: 2
+    displayName: Fin 3 R
+  - prefab: {fileID: 6777633313170547982, guid: 49b7c8c41ac27734780dc7f9da36f24d, type: 3}
+    category: Fin
+    variant: 4
+    side: 1
+    displayName: Fin 4 L
+  - prefab: {fileID: 2357613447380504899, guid: 35c319b926b843c42928ba761ad9d925, type: 3}
+    category: Fin
+    variant: 4
+    side: 2
+    displayName: Fin 4 R
+  - prefab: {fileID: 4570702690583047868, guid: c8c423cf0de964c439f514048b8ff4e1, type: 3}
+    category: ModuleConnection
+    variant: 1
+    side: 1
+    displayName: Module Connection 1 L
+  - prefab: {fileID: 5420679386497539508, guid: c4ed7690f09d1c6419b16ae63410784d, type: 3}
+    category: ModuleConnection
+    variant: 1
+    side: 2
+    displayName: Module Connection 1 R
+  - prefab: {fileID: 1065568469683019034, guid: 8f37e555f390bb8499730bb9f3241ce7, type: 3}
+    category: ModuleConnection
+    variant: 2
+    side: 1
+    displayName: Module Connection 2 L
+  - prefab: {fileID: 7383011279349757432, guid: 2ebb8de30a875654b8df95ac2ac4eef0, type: 3}
+    category: ModuleConnection
+    variant: 2
+    side: 2
+    displayName: Module Connection 2 R
+  - prefab: {fileID: 6551042262188445185, guid: 1d51b4ae00bb5fd4ab03b2ad479b4435, type: 3}
+    category: PrimaryWeapon
+    variant: 0
+    side: 0
+    displayName: Primary Weapon
+  - prefab: {fileID: 1211206494931061040, guid: 0e1f09298059c4742bf236257c3f4869, type: 3}
+    category: Reactor
+    variant: 1
+    side: 0
+    displayName: Reactor 1
+  - prefab: {fileID: 64311280109380001, guid: c5bdc14da64222f41931c799ddc1271e, type: 3}
+    category: Reactor
+    variant: 2
+    side: 0
+    displayName: Reactor 2
+  - prefab: {fileID: 6628489798102123602, guid: 971179917644f5441af662a7919dc0cd, type: 3}
+    category: Reactor
+    variant: 3
+    side: 0
+    displayName: Reactor 3
+  - prefab: {fileID: 1511867658552177928, guid: 8b3920bff86f3e548b9fb7245b426b99, type: 3}
+    category: Reactor
+    variant: 4
+    side: 0
+    displayName: Reactor 4
+  - prefab: {fileID: 2272843482377773042, guid: b8658f145a9a2ab4ebcc902218491f26, type: 3}
+    category: Reactor
+    variant: 5
+    side: 0
+    displayName: Reactor 5
+  - prefab: {fileID: 1192819658585570351, guid: c6aac0b7e4a458b4791bda01c1313ca6, type: 3}
+    category: SecondaryWeapon
+    variant: 1
+    side: 1
+    displayName: Secondary Weapon 1 L
+  - prefab: {fileID: 403773076244579415, guid: 3a1262cf1f7fc264097a9bd442238d75, type: 3}
+    category: SecondaryWeapon
+    variant: 1
+    side: 2
+    displayName: Secondary Weapon 1 R
+  - prefab: {fileID: 8218466782010517737, guid: d02b36322c8aba84f84ab5018c7be0ac, type: 3}
+    category: SecondaryWeapon
+    variant: 2
+    side: 1
+    displayName: Secondary Weapon 2 L
+  - prefab: {fileID: 5602989729158434027, guid: 3cb366326e67d1249931ba32552c8e0d, type: 3}
+    category: SecondaryWeapon
+    variant: 2
+    side: 2
+    displayName: Secondary Weapon 2 R
+  - prefab: {fileID: 7021180239698555697, guid: 678ec34235dc2d04e979c94f792dc728, type: 3}
+    category: SecondaryWeapon
+    variant: 3
+    side: 1
+    displayName: Secondary Weapon 3 L
+  - prefab: {fileID: 5589549934694942227, guid: aff440f42ac73db4fb2d43160e645b19, type: 3}
+    category: SecondaryWeapon
+    variant: 3
+    side: 2
+    displayName: Secondary Weapon 3 R
+  - prefab: {fileID: 4516441137712463032, guid: 7cb98077a73849d4293b3e529e979bcf, type: 3}
+    category: SecondaryWeapon
+    variant: 4
+    side: 1
+    displayName: Secondary Weapon 4 L
+  - prefab: {fileID: 2714015550253028058, guid: e15ba249b66842d438b9b96267d11cf8, type: 3}
+    category: SecondaryWeapon
+    variant: 4
+    side: 2
+    displayName: Secondary Weapon 4 R
+  - prefab: {fileID: 6762319787301832229, guid: 8495d3762f14ea34e9aeb289b522ce7a, type: 3}
+    category: SecondaryWeapon
+    variant: 5
+    side: 1
+    displayName: Secondary Weapon 5 L
+  - prefab: {fileID: 5193820921387139362, guid: ea024475f59b7d54ca773a93197c7edd, type: 3}
+    category: SecondaryWeapon
+    variant: 5
+    side: 2
+    displayName: Secondary Weapon 5 R
+  - prefab: {fileID: 3206622374955405208, guid: f6045437154fd1140af6b3610bda08c5, type: 3}
+    category: SecondaryWeapon
+    variant: 6
+    side: 1
+    displayName: Secondary Weapon 6 L
+  - prefab: {fileID: 674229951755047567, guid: 464ad4e185b7d5f42ad21f187c2bfc6d, type: 3}
+    category: SecondaryWeapon
+    variant: 6
+    side: 2
+    displayName: Secondary Weapon 6 R
+  - prefab: {fileID: 1543337578115907571, guid: df4a371ea3b8b9141b8a247102cfc7dc, type: 3}
+    category: SecondaryWeapon
+    variant: 7
+    side: 1
+    displayName: Secondary Weapon 7 L
+  - prefab: {fileID: 7143042575710161495, guid: 0fb24688d2383db4a9c6b7633218ecee, type: 3}
+    category: SecondaryWeapon
+    variant: 7
+    side: 2
+    displayName: Secondary Weapon 7 R
+  - prefab: {fileID: 7923697925518446076, guid: 2537f20aaac9a4342bd539ef7b6ca579, type: 3}
+    category: SecondaryWeapon
+    variant: 8
+    side: 1
+    displayName: Secondary Weapon 8 L
+  - prefab: {fileID: 952105667421309291, guid: 8bdb4ac7b1c20e34a91da1bd0fd220f2, type: 3}
+    category: SecondaryWeapon
+    variant: 8
+    side: 2
+    displayName: Secondary Weapon 8 R
+  - prefab: {fileID: 3362593523932287718, guid: e51aa754110cc3647be843a6397d952c, type: 3}
+    category: SecondaryWeapon
+    variant: 9
+    side: 1
+    displayName: Secondary Weapon 9 L
+  - prefab: {fileID: 7336080790622130805, guid: 9d090fa95492dbd45ace20a578744d54, type: 3}
+    category: SecondaryWeapon
+    variant: 9
+    side: 2
+    displayName: Secondary Weapon 9 R
+  - prefab: {fileID: 5438700618977964867, guid: 2962e086ed00b3348831898037718220, type: 3}
+    category: SecondaryWeapon
+    variant: 10
+    side: 1
+    displayName: Secondary Weapon 10 L
+  - prefab: {fileID: 2702239064517345717, guid: 871b7302db6dcda4d8231d5baee6df22, type: 3}
+    category: SecondaryWeapon
+    variant: 10
+    side: 2
+    displayName: Secondary Weapon 10 R
+  - prefab: {fileID: 8188111392309633672, guid: 01ed405afea9bdd4d856830f5cc1227c, type: 3}
+    category: SecondaryWeapon
+    variant: 11
+    side: 1
+    displayName: Secondary Weapon 11 L
+  - prefab: {fileID: 1667513847240574195, guid: 110f632757e269f4e9d15ad90e03b2f5, type: 3}
+    category: SecondaryWeapon
+    variant: 11
+    side: 2
+    displayName: Secondary Weapon 11 R
+  - prefab: {fileID: 3698557697807080186, guid: bbbaa9a596484bd4cbf0bbcec07f302a, type: 3}
+    category: SpecialWeapon
+    variant: 1
+    side: 1
+    displayName: Special Weapon 1 L
+  - prefab: {fileID: 1322063899599467541, guid: e32917b3acc994449bd066a2fd5576ea, type: 3}
+    category: SpecialWeapon
+    variant: 1
+    side: 2
+    displayName: Special Weapon 1 R
+  - prefab: {fileID: 6982155280008868581, guid: e9c8af75939e8254e8a37fdcaca96270, type: 3}
+    category: Tail
+    variant: 0
+    side: 0
+    displayName: Tail
+  - prefab: {fileID: 8106142521048612280, guid: bbde0d4883f72e84f877a8fe102c0078, type: 3}
+    category: Tail
+    variant: 1
+    side: 1
+    displayName: Tail 1 L
+  - prefab: {fileID: 1910882575889971747, guid: 502c249bc2eee914fbd8a4d56e989d10, type: 3}
+    category: Tail
+    variant: 1
+    side: 2
+    displayName: Tail 1 R
+  - prefab: {fileID: 4529709521695396509, guid: 680d84bdf2c61654f8178fc1dfefacde, type: 3}
+    category: Tail
+    variant: 2
+    side: 1
+    displayName: Tail 2 L
+  - prefab: {fileID: 448144411766820177, guid: 7893a52fa91be8b4fa4f86c82239a1a0, type: 3}
+    category: Tail
+    variant: 2
+    side: 2
+    displayName: Tail 2 R
+  - prefab: {fileID: 2992517071807779739, guid: 0027ecad3e70d854db1a48fa620e80b5, type: 3}
+    category: Tail
+    variant: 3
+    side: 1
+    displayName: Tail 3 L
+  - prefab: {fileID: 1761768708069916731, guid: 1ad94e292840ca94eb5937166f40fbd2, type: 3}
+    category: Tail
+    variant: 3
+    side: 2
+    displayName: Tail 3 R
+  - prefab: {fileID: 3342023240504560010, guid: f58420133137032408b7978b266f93a4, type: 3}
+    category: Thruster
+    variant: 0
+    side: 0
+    displayName: Thruster
+  - prefab: {fileID: 7021528425855609889, guid: 319f533ac0b4761488b745446d64c4a1, type: 3}
+    category: Wing
+    variant: 0
+    side: 0
+    displayName: Wing
+  - prefab: {fileID: 5723801314400573458, guid: df9bbbc20d8bcad419f3468dd5246577, type: 3}
+    category: Wing
+    variant: 1
+    side: 1
+    displayName: Wing 1 L
+  - prefab: {fileID: 9060953901393350839, guid: e6e186dff01e0f9458ee32b51a583a6e, type: 3}
+    category: Wing
+    variant: 1
+    side: 2
+    displayName: Wing 1 R
+  - prefab: {fileID: 7150751250055780766, guid: a7f54c2bc9b50e748bf3c6f37e29d07b, type: 3}
+    category: Wing
+    variant: 2
+    side: 1
+    displayName: Wing 2 L
+  - prefab: {fileID: 4186902153450231298, guid: fd54e07b0ffaa914fa61a20965ede9da, type: 3}
+    category: Wing
+    variant: 2
+    side: 2
+    displayName: Wing 2 R
+  - prefab: {fileID: 5672484188392594367, guid: 15447bc11638ab8449833f45f32a7cfb, type: 3}
+    category: Wing
+    variant: 3
+    side: 1
+    displayName: Wing 3 L
+  - prefab: {fileID: 3297142593573892100, guid: 225de9425e38cf944ad41776cbfb1785, type: 3}
+    category: Wing
+    variant: 3
+    side: 2
+    displayName: Wing 3 R
+  - prefab: {fileID: 8811289717339851206, guid: b8a20f6934f3ed944afe7af91bab7492, type: 3}
+    category: Wing
+    variant: 4
+    side: 1
+    displayName: Wing 4 L
+  - prefab: {fileID: 7775872863924802422, guid: 255c946f856f2b94fbc802008449495b, type: 3}
+    category: Wing
+    variant: 4
+    side: 2
+    displayName: Wing 4 R
+  - prefab: {fileID: 9189022629320710081, guid: cbf4b05f1846f444383b0d8e7e59a40e, type: 3}
+    category: Wing
+    variant: 5
+    side: 1
+    displayName: Wing 5 L
+  - prefab: {fileID: 7071474549873751085, guid: bd4574bc6ea3bae47978fbf83e804d13, type: 3}
+    category: Wing
+    variant: 5
+    side: 2
+    displayName: Wing 5 R
+  - prefab: {fileID: 4995596198121258903, guid: 281efdf8270e13a45bc229b54794631e, type: 3}
+    category: Wing
+    variant: 6
+    side: 1
+    displayName: Wing 6 L
+  - prefab: {fileID: 1896574415980116499, guid: 18dd8eebdfe19bf4688fb00a505173c4, type: 3}
+    category: Wing
+    variant: 6
+    side: 2
+    displayName: Wing 6 R
+  - prefab: {fileID: 5654710177466046380, guid: 49f55b269fbcb96498027547df11ce92, type: 3}
+    category: Wing
+    variant: 7
+    side: 1
+    displayName: Wing 7 L
+  - prefab: {fileID: 4716393630445111574, guid: cbee320e6e8277945840764c1891f2db, type: 3}
+    category: Wing
+    variant: 7
+    side: 2
+    displayName: Wing 7 R
+  - prefab: {fileID: 2350301585243013647, guid: ab585e34d5f983e4bb740bc6142b845b, type: 3}
+    category: Wing
+    variant: 8
+    side: 1
+    displayName: Wing 8 L
+  - prefab: {fileID: 2443142301367672127, guid: eb5ba741176f57645967dddf56a155c4, type: 3}
+    category: Wing
+    variant: 8
+    side: 2
+    displayName: Wing 8 R
+  - prefab: {fileID: 189859468987731593, guid: d0cefc7f44078bf439105340ce5763ba, type: 3}
+    category: Wing
+    variant: 9
+    side: 1
+    displayName: Wing 9 L
+  - prefab: {fileID: 7922961344561826867, guid: 1513e27ba446b604bb82363d7aee4364, type: 3}
+    category: Wing
+    variant: 9
+    side: 2
+    displayName: Wing 9 R
+  - prefab: {fileID: 16316141208610889, guid: 2f9155e6a12abb14eb845c82502a4b0f, type: 3}
+    category: Wing
+    variant: 10
+    side: 0
+    displayName: Wing 10
+  - prefab: {fileID: 5027001076766763354, guid: 8420d24dd663e724e836da8eeb180683, type: 3}
+    category: Wing
+    variant: 10
+    side: 1
+    displayName: Wing 10 L
+  - prefab: {fileID: 4191172469545251957, guid: c5336d5353eada54695975c52a76dd01, type: 3}
+    category: Wing
+    variant: 11
+    side: 2
+    displayName: Wing 11 R
+  - prefab: {fileID: 937165605477821355, guid: 599623aa8fc29744782f0959b8400634, type: 3}
+    category: Wing
+    variant: 12
+    side: 0
+    displayName: Wing 12
+  - prefab: {fileID: 7985533705410275415, guid: 8a2f05aaf0b18e542a4c606eccfa78e7, type: 3}
+    category: Wing
+    variant: 13
+    side: 1
+    displayName: Wing 13 L
+  - prefab: {fileID: 8222255273870973890, guid: 6471030c91560d740a9c477cf2caedcf, type: 3}
+    category: Wing
+    variant: 13
+    side: 2
+    displayName: Wing 13 R
+  - prefab: {fileID: 5595052721119278248, guid: dc8abd4d372e49348b5a5c63468af282, type: 3}
+    category: Wing
+    variant: 14
+    side: 1
+    displayName: Wing 14 L
+  - prefab: {fileID: 6752271202216059563, guid: 1735b6c8bf999334ca82eaf5347c19e3, type: 3}
+    category: Wing
+    variant: 14
+    side: 2
+    displayName: Wing 14 R
+  - prefab: {fileID: 8744957208203324022, guid: 56806c96053e85d4ea05617e358a6e8e, type: 3}
+    category: Wing
+    variant: 15
+    side: 1
+    displayName: Wing 15 L
+  - prefab: {fileID: 4152263595803742916, guid: 11a7cf78891db58468e6fb7a18b362b2, type: 3}
+    category: Wing
+    variant: 15
+    side: 2
+    displayName: Wing 15 R
+  - prefab: {fileID: 385954239141700388, guid: 772b16d895e2efa4b91e52b582a1483e, type: 3}
+    category: Wing
+    variant: 16
+    side: 1
+    displayName: Wing 16 L
+  - prefab: {fileID: 57848526176687414, guid: bfa6444d5d54020489865123cd4cc028, type: 3}
+    category: Wing
+    variant: 16
+    side: 2
+    displayName: Wing 16 R
+  - prefab: {fileID: 5990810511579854370, guid: 5f780bdc1a4e4ad4e813b637edf42f58, type: 3}
+    category: Wing
+    variant: 17
+    side: 1
+    displayName: Wing 17 L
+  - prefab: {fileID: 4064943419234606413, guid: 3816459078929d24196bb614e02ba9ba, type: 3}
+    category: Wing
+    variant: 17
+    side: 2
+    displayName: Wing 17 R
+  - prefab: {fileID: 7269249599311022764, guid: 37fdf7880d1dd8f44bc2ef56f350d4a8, type: 3}
+    category: Wing
+    variant: 18
+    side: 1
+    displayName: Wing 18 L
+  - prefab: {fileID: 5699666230928301306, guid: 44e56d8cea751984bb8c1e61690fd678, type: 3}
+    category: Wing
+    variant: 18
+    side: 2
+    displayName: Wing 18 R
+  - prefab: {fileID: 3638998248108185250, guid: 124859ef92059e04f97d5c267c4db93f, type: 3}
+    category: Wing
+    variant: 19
+    side: 1
+    displayName: Wing 19 L
+  - prefab: {fileID: 2924235056617344773, guid: c8caace1a2c5bce4c9af482ee5fa2d25, type: 3}
+    category: Wing
+    variant: 19
+    side: 2
+    displayName: Wing 19 R
+  - prefab: {fileID: 3332764068421136254, guid: 4a3aae70382046341a1fb32b83cd421c, type: 3}
+    category: Wing
+    variant: 20
+    side: 1
+    displayName: Wing 20 L
+  - prefab: {fileID: 5560978541094078334, guid: 973fdf792d9b5af4bb6bc0a27f4dba4e, type: 3}
+    category: Wing
+    variant: 20
+    side: 2
+    displayName: Wing 20 R
+  - prefab: {fileID: 4968426935051642873, guid: f2b089d5cd44f644e884c21949f9cf51, type: 3}
+    category: Wing
+    variant: 21
+    side: 1
+    displayName: Wing 21 L
+  - prefab: {fileID: 9182781686542797930, guid: 3923302a65738f746bf0ad3378da0bcb, type: 3}
+    category: Wing
+    variant: 21
+    side: 2
+    displayName: Wing 21 R
+  - prefab: {fileID: 2162200143097215292, guid: c8c4d8c858eb8ac4baae31db962f488c, type: 3}
+    category: Wing
+    variant: 22
+    side: 1
+    displayName: Wing 22 L
+  - prefab: {fileID: 5407368391788157812, guid: dd27b163a18f50947a33c7693217f26f, type: 3}
+    category: Wing
+    variant: 22
+    side: 2
+    displayName: Wing 22 R
+  - prefab: {fileID: 1179078394165728964, guid: cfc120b05ca91af418bd54d816292904, type: 3}
+    category: Wing
+    variant: 23
+    side: 1
+    displayName: Wing 23 L
+  - prefab: {fileID: 356718917137061469, guid: 9564f0f78954e2c4687ac9a36ca125f2, type: 3}
+    category: Wing
+    variant: 23
+    side: 2
+    displayName: Wing 23 R
+  - prefab: {fileID: 1838554697938435605, guid: bc02007f685663c4a9d5125aada40bac, type: 3}
+    category: Wing
+    variant: 24
+    side: 1
+    displayName: Wing 24 L
+  - prefab: {fileID: 8033612669662364308, guid: 4d85668e2a638a441ac1a18df3736e79, type: 3}
+    category: Wing
+    variant: 24
+    side: 2
+    displayName: Wing 24 R
+  - prefab: {fileID: 5375884053783559930, guid: d6ffa01a21b37d54b96884a3312c4bc6, type: 3}
+    category: Wing
+    variant: 25
+    side: 1
+    displayName: Wing 25 L
+  - prefab: {fileID: 6135207758932801500, guid: af44220a0d1bd454389d4dc053d5d1e6, type: 3}
+    category: Wing
+    variant: 25
+    side: 2
+    displayName: Wing 25 R
+  - prefab: {fileID: 3495030267301185808, guid: 97780ff63f6216f42bf2c217029dc028, type: 3}
+    category: Wing
+    variant: 26
+    side: 1
+    displayName: Wing 26 L
+  - prefab: {fileID: 8765873803773286727, guid: 63219202339f12540abfe2b0e45a4302, type: 3}
+    category: Wing
+    variant: 26
+    side: 2
+    displayName: Wing 26 R
