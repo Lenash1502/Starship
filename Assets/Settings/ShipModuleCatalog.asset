@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd6c94e2b153dd04cb5089b486b5e91d, type: 3}
+  m_Name: ShipModuleCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::ShipPartCatalog
+  sourceFolder: Assets/Prefabs/ShipModules
+  parts:
+  - prefab: {fileID: 772452928941822664, guid: 787c23dcceba6b24dacdc14231fa9bcb, type: 3}
+    category: Core
+    variant: 0
+    side: 0
+    displayName: Core
+  - prefab: {fileID: 1814195725462933274, guid: 52defb8b44d53be4aaa04ccf63855f82, type: 3}
+    category: Engine
+    variant: 0
+    side: 0
+    displayName: Engine
+  - prefab: {fileID: 7081783891273580251, guid: c211668e8b8bf8641a461e9c221a78d4, type: 3}
+    category: Fin
+    variant: 0
+    side: 0
+    displayName: Fin
+  - prefab: {fileID: 1285317712255214904, guid: 26f766cf3940c1f4f8eec6f624639296, type: 3}
+    category: Plasma
+    variant: 0
+    side: 0
+    displayName: Plasma
+  - prefab: {fileID: 1488079672140196605, guid: 0b638652c09e35045a2f39603cfff2fa, type: 3}
+    category: PrimaryWeapon
+    variant: 0
+    side: 0
+    displayName: Primary Weapon
+  - prefab: {fileID: 256680623298264474, guid: 001f03b325cdb1443b844e07b2109390, type: 3}
+    category: Tail
+    variant: 0
+    side: 0
+    displayName: Tail
+  - prefab: {fileID: 1650889170549615883, guid: 14033e59a476467488f4163bde3133ee, type: 3}
+    category: Thruster
+    variant: 0
+    side: 0
+    displayName: Thruster
+  - prefab: {fileID: 5598171104485489926, guid: 019aecc58fccbd147a406ccd00263165, type: 3}
+    category: Wing
+    variant: 0
+    side: 0
+    displayName: Wing

@@ -71,33 +71,54 @@ public static class ShipPartCatalogBuilder
         return catalog.parts.Count;
     }
 
-    // Handy sanity check: lists every hard point category the prefabs ask for that has no part to
-    // put in it, so missing content shows up as a console line rather than an empty menu at runtime.
+    // Sanity check on content coverage: walks every hard point in every prefab, counts what the
+    // catalog would offer there, and calls out the ones with nothing to put in them - so missing
+    // content shows up as a console line rather than as an empty menu at runtime.
     [MenuItem("Tools/Ship Builder/Report Unfilled Hard Points")]
     public static void ReportUnfilledHardPoints()
     {
         ShipPartCatalog catalog = LoadOrCreateCatalog();
+        Rebuild(catalog);
 
-        var wanted = new HashSet<string>();
-        string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { catalog.sourceFolder });
-        foreach (string guid in guids)
+        // Distinct mount names, with how many times each one appears across the prefabs.
+        var sockets = new Dictionary<string, int>();
+        foreach (string guid in AssetDatabase.FindAssets("t:Prefab", new[] { catalog.sourceFolder }))
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
             if (prefab == null) continue;
 
             foreach (Transform child in prefab.GetComponentsInChildren<Transform>(true))
             {
-                if (PartNaming.TryParseHardPoint(child.name, out string category, out _, out _)) wanted.Add(category);
+                if (!PartNaming.IsHardPointName(child.name)) continue;
+
+                sockets.TryGetValue(child.name, out int count);
+                sockets[child.name] = count + 1;
             }
         }
 
-        var missing = new List<string>();
-        foreach (string category in wanted)
+        var empty = new List<string>();
+        int emptySocketCount = 0;
+
+        foreach (KeyValuePair<string, int> socket in sockets)
         {
-            if (!catalog.HasPartsFor(category, PartSide.None)) missing.Add(category);
+            PartNaming.TryParseHardPoint(socket.Key, out string category, out PartSide side, out _);
+            if (catalog.HasPartsFor(category, side)) continue;
+
+            empty.Add($"{socket.Key} ({socket.Value} sockets)");
+            emptySocketCount += socket.Value;
         }
 
-        if (missing.Count == 0) Debug.Log("[Ship Builder] Every hard point category has at least one part.");
-        else Debug.LogWarning("[Ship Builder] No parts exist for: " + string.Join(", ", missing));
+        Debug.Log($"[Ship Builder] {sockets.Count} distinct mounts across the prefabs.");
+
+        if (empty.Count == 0)
+        {
+            Debug.Log("[Ship Builder] Every mount has at least one part to offer.");
+        }
+        else
+        {
+            empty.Sort();
+            Debug.LogWarning($"[Ship Builder] {empty.Count} mounts have nothing to offer, covering {emptySocketCount} sockets:\n  "
+                             + string.Join("\n  ", empty));
+        }
     }
 }

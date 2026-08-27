@@ -100,9 +100,12 @@ public static class PartNaming
         return PartSide.None;
     }
 
-    // A part fits a hard point when neither of them insists on a side the other contradicts.
-    // A centred hard point ("WingHardPoint") accepts left and right models alike, and a sideless
-    // model ("Engine_Var4") drops onto either shoulder.
+    // Whether a part may sit on a hard point, judged purely on the sides the two names claim.
+    //
+    // The suffix only constrains the pairing when both names carry one: "Wing_Var3_L" fits
+    // "WingHardPoint_L" and never "WingHardPoint_R". If either name leaves the side out, anything
+    // goes - a centred mount such as "WingHardPoint" takes left and right models alike, and a
+    // centred model such as "Engine_Var4" drops onto either shoulder.
     public static bool SidesMatch(PartSide partSide, PartSide hardPointSide)
     {
         if (partSide == PartSide.None || hardPointSide == PartSide.None) return true;

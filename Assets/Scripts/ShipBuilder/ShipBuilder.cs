@@ -30,8 +30,21 @@ public class ShipBuilder : MonoBehaviour
     [Tooltip("Hide sockets that no prefab in the catalog can fill yet. Off while parts are still " +
              "being authored, so the empty mounts stay visible.")]
     public bool hideEmptyHardPoints = false;
+    [Tooltip("Hide a socket entirely once it holds a part, instead of drawing it as a ring. Note " +
+             "that a hidden socket cannot be clicked, so the part on it can no longer be swapped " +
+             "from the menu.")]
+    public bool hideOccupiedHardPoints = false;
+    [Tooltip("How thick the ring on an occupied socket is: the inner edge as a fraction of the " +
+             "radius, so higher is thinner.")]
+    [Range(0f, 0.95f)] public float markerRingInnerRadius = 0.68f;
+    [Tooltip("Hide sockets the hull stands in front of, so the far side of the ship stays clear " +
+             "until it is rotated round.")]
+    public bool hideOccludedHardPoints = true;
+    [Tooltip("Frames between occlusion checks. Higher is cheaper, and slightly laggier while the " +
+             "ship is being spun.")]
+    [Range(1, 10)] public int occlusionCheckInterval = 2;
     public Color markerIdleColor = new Color(0.35f, 0.8f, 1f, 0.55f);
-    public Color markerOccupiedColor = new Color(0.35f, 1f, 0.55f, 0.3f);
+    public Color markerOccupiedColor = new Color(1f, 1f, 1f, 0.75f);
     public Color markerSelectedColor = new Color(1f, 0.6f, 0.15f, 1f);
 
     [Header("Preview")]
@@ -45,7 +58,8 @@ public class ShipBuilder : MonoBehaviour
     public float dragThreshold = 4f;
 
     [Header("Camera Framing")]
-    [Tooltip("Pull the camera back along its own view direction until the whole ship fits.")]
+    [Tooltip("Let the builder drive the camera: fit the ship, zoom in on a clicked part, and take " +
+             "the scroll wheel. Turn off to fly the camera yourself.")]
     public bool autoFrameCamera = true;
     [Tooltip("Room left around the ship. 1 is a tight fit against the edges of the view.")]
     public float framingPadding = 1.15f;
@@ -54,6 +68,14 @@ public class ShipBuilder : MonoBehaviour
     [Tooltip("Fraction of the screen width the parts panel covers, so the ship centres in what is " +
              "left of the view. ShipBuilderUI keeps this up to date on its own.")]
     [Range(0f, 0.6f)] public float uiPanelFraction = 0f;
+
+    [Header("Zoom")]
+    [Tooltip("How far one notch of the scroll wheel moves the camera, as a proportion of distance.")]
+    public float zoomSensitivity = 0.2f;
+    [Tooltip("Closest the wheel can pull in, as a fraction of the framed distance.")]
+    public float minZoom = 0.2f;
+    [Tooltip("Furthest the wheel can push out, as a multiple of the framed distance.")]
+    public float maxZoom = 3f;
 
     // Raised when the right hand list should show something else, and when the ship itself changed.
     public event Action OfferChanged;
@@ -81,15 +103,24 @@ public class ShipBuilder : MonoBehaviour
 
     bool dragging;
     bool pressStartedOnModel;
+    PlacedPart pressedPart;
     Vector2 pressTravel;
 
     Vector3 framingDirection = Vector3.forward;
     Vector3 framingTarget;
     Vector3 framingVelocity;
     bool hasFramingTarget;
+    float assemblyRadius;
+
+    PlacedPart focusedPart;
+    Vector3 focusLocalCenter;
+    float focusRadius;
+    float zoomLevel = 1f;
+    int occlusionFrameCounter;
 
     static readonly int ColorId = Shader.PropertyToID("_Color");
     static readonly int RimColorId = Shader.PropertyToID("_RimColor");
+    static readonly int InnerRadiusId = Shader.PropertyToID("_InnerRadius");
 
     void Awake()
     {
@@ -150,10 +181,12 @@ public class ShipBuilder : MonoBehaviour
         if (ghostMaterial.HasProperty(ColorId)) ghostMaterial.SetColor(ColorId, ghostColor);
         if (ghostMaterial.HasProperty(RimColorId)) ghostMaterial.SetColor(RimColorId, ghostRimColor);
 
-        markerMaterial = new Material(LoadShader("ShipBuilderOverlay", "ShipBuilder/Overlay"));
+        markerMaterial = new Material(LoadShader("ShipBuilderMarker", "ShipBuilder/Marker"));
+        ApplyMarkerMaterialSettings();
 
-        // One sphere mesh borrowed from a throwaway primitive, shared by every marker.
-        GameObject template = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        // A flat quad, shared by every marker: the shader spins it to face the camera, so the
+        // markers read as circles from any angle without any per frame work here.
+        GameObject template = GameObject.CreatePrimitive(PrimitiveType.Quad);
         markerMesh = template.GetComponent<MeshFilter>().sharedMesh;
         Destroy(template);
     }
@@ -194,14 +227,33 @@ public class ShipBuilder : MonoBehaviour
         IsChoosingCore = false;
         OfferTitle = PartNaming.PrettyCategory(hardPoint.category);
 
+        // The side comes from the chain the socket hangs off, not just from its own name, so a
+        // centred mount out on a left wing still only offers left hand parts.
+        PartSide side = hardPoint.EffectiveSide;
         string tail = PartNaming.PrettySuffix(hardPoint.suffix);
-        OfferSubtitle = string.IsNullOrEmpty(tail) ? "Mount point" : tail + " mount point";
+
+        if (!string.IsNullOrEmpty(tail)) OfferSubtitle = tail + " mount point";
+        else if (side == PartSide.None) OfferSubtitle = "Mount point";
+        else OfferSubtitle = "Mount point, " + (side == PartSide.Left ? "left" : "right") + " side of the ship";
 
         CurrentOffer = catalog != null
-            ? new List<ShipPartDefinition>(catalog.GetPartsFor(hardPoint.category, hardPoint.side))
+            ? new List<ShipPartDefinition>(catalog.GetPartsFor(hardPoint.category, side))
             : new List<ShipPartDefinition>();
 
         OfferChanged?.Invoke();
+    }
+
+    // Clicking a piece of the ship offers what could stand in for it. For the core that is the hull
+    // list, and picking a different hull strips the build back to bare metal - PlaceCore tears the
+    // old core down first, and a part takes everything bolted to it with it. For anything else it
+    // is the list for the socket that part occupies, so a wing can be swapped by clicking the wing
+    // rather than hunting for its marker.
+    public void OfferReplacementsFor(PlacedPart part)
+    {
+        if (part == null) return;
+
+        if (part == Core) ShowCoreOffer();
+        else if (part.attachedTo != null) SelectHardPoint(part.attachedTo);
     }
 
     void SetSelectedHardPoint(HardPoint hardPoint)
@@ -353,6 +405,14 @@ public class ShipBuilder : MonoBehaviour
         if (part == Core) Core = null;
         if (hiddenForPreview == part) hiddenForPreview = null;
 
+        // Zooming in on something and then deleting it should drop back to the whole ship, which
+        // the AssemblyChanged reframe that follows takes care of.
+        if (focusedPart == part)
+        {
+            focusedPart = null;
+            zoomLevel = 1f;
+        }
+
         Destroy(part.gameObject);
     }
 
@@ -380,11 +440,6 @@ public class ShipBuilder : MonoBehaviour
             placed.hardPoints.Add(hardPoint);
             hardPoints.Add(hardPoint);
             RefreshMarker(hardPoint);
-
-            if (hideEmptyHardPoints && catalog != null && !catalog.HasPartsFor(category, side))
-            {
-                hardPoint.marker.SetVisible(false);
-            }
         }
 
         return placed;
@@ -418,12 +473,107 @@ public class ShipBuilder : MonoBehaviour
     {
         if (hardPoint == null || hardPoint.marker == null) return;
 
+        // Filled while the socket is open or being worked on, a hollow ring once something is
+        // bolted there - a finished mount should stop competing with the model for attention.
         Color color = markerIdleColor;
-        if (hardPoint == SelectedHardPoint) color = markerSelectedColor;
-        else if (hardPoint.IsOccupied) color = markerOccupiedColor;
+        bool filled = true;
 
-        hardPoint.marker.SetColor(color);
+        if (hardPoint == SelectedHardPoint)
+        {
+            color = markerSelectedColor;
+        }
+        else if (hardPoint.IsOccupied)
+        {
+            color = markerOccupiedColor;
+            filled = false;
+        }
+
+        hardPoint.marker.SetStyle(color, filled);
+        RefreshMarkerVisibility(hardPoint);
     }
+
+    // Single place that decides whether a socket is drawn at all, so the hide rules cannot undo
+    // each other as markers are refreshed.
+    void RefreshMarkerVisibility(HardPoint hardPoint)
+    {
+        if (hardPoint == null || hardPoint.marker == null) return;
+
+        bool visible = !hardPoint.marker.Occluded;
+
+        // The one being worked on always stays up, even under a rule that would hide it.
+        if (hardPoint != SelectedHardPoint)
+        {
+            if (hideOccupiedHardPoints && hardPoint.IsOccupied) visible = false;
+            if (hideEmptyHardPoints && catalog != null && !catalog.HasPartsFor(hardPoint.category, hardPoint.EffectiveSide)) visible = false;
+        }
+
+        hardPoint.marker.SetVisible(visible);
+    }
+
+    // Decides which sockets are on the far side of the hull.
+    //
+    // The ray is cast from the socket out toward the camera rather than the other way round, and
+    // that direction is the whole trick: a ray that starts inside a collider does not register that
+    // collider, so a socket buried in the plating it belongs to still counts as visible, while hull
+    // standing between it and the camera blocks it. Because it runs against the same colliders as
+    // picking, a marker is clickable exactly when it can be seen.
+    void UpdateMarkerOcclusion()
+    {
+        if (builderCamera == null) return;
+
+        Vector3 cameraPosition = builderCamera.transform.position;
+
+        foreach (HardPoint hardPoint in hardPoints)
+        {
+            if (hardPoint == null || hardPoint.marker == null) continue;
+
+            bool occluded = false;
+
+            if (hideOccludedHardPoints)
+            {
+                Vector3 markerPosition = hardPoint.transform.position;
+                Vector3 toCamera = cameraPosition - markerPosition;
+                float distance = toCamera.magnitude;
+                Vector3 direction = distance > 0.001f ? toCamera / distance : Vector3.forward;
+
+                // Nudged off the start point so a socket sitting exactly on a collider surface does
+                // not graze that surface and flicker in and out.
+                const float startOffset = 0.02f;
+
+                if (distance > startOffset &&
+                    Physics.Raycast(markerPosition + direction * startOffset, direction, out RaycastHit hit,
+                                    distance - startOffset, ~0, QueryTriggerInteraction.Ignore))
+                {
+                    // Only the ship itself hides a socket; the stand and the rest of the scene do not.
+                    occluded = hit.collider.GetComponentInParent<PlacedPart>() != null;
+                }
+            }
+
+            if (hardPoint.marker.Occluded == occluded) continue;
+
+            hardPoint.marker.Occluded = occluded;
+            RefreshMarkerVisibility(hardPoint);
+        }
+    }
+
+    void ApplyMarkerMaterialSettings()
+    {
+        if (markerMaterial == null) return;
+
+        markerMaterial.SetFloat(InnerRadiusId, markerRingInnerRadius);
+    }
+
+#if UNITY_EDITOR
+    // Lets the marker look be dialled in while the game is running, which is the only way to judge
+    // whether the depth bias is clearing the hull properly.
+    void OnValidate()
+    {
+        if (!Application.isPlaying || markerMaterial == null) return;
+
+        ApplyMarkerMaterialSettings();
+        foreach (HardPoint hardPoint in hardPoints) RefreshMarker(hardPoint);
+    }
+#endif
 
     public void SetMarkersVisible(bool visible)
     {
@@ -435,14 +585,69 @@ public class ShipBuilder : MonoBehaviour
 
     // ---------------------------------------------------------------- camera framing
 
-    // Pulls the camera back along the direction it was already pointing until the whole assembly
-    // fits, and slides it sideways so the ship centres in the part of the screen the parts panel
-    // does not cover. Runs whenever the ship gains or loses a part.
+    // What the camera is looking at: a single part while one is focused, the whole ship otherwise.
+    public PlacedPart FocusedPart => focusedPart;
+    public bool IsFocusedOnPart => focusedPart != null;
+
+    // Zooms in on one part. The centre is remembered in that part's own local space, so the camera
+    // keeps tracking it while the ship is dragged around.
+    public void FocusOn(PlacedPart part)
+    {
+        if (part == null)
+        {
+            FocusOnAssembly();
+            return;
+        }
+
+        if (!TryMeasurePart(part, out Vector3 center, out float radius)) return;
+
+        focusedPart = part;
+        focusLocalCenter = part.transform.InverseTransformPoint(center);
+        focusRadius = radius;
+        zoomLevel = 1f;
+
+        UpdateFramingTarget();
+    }
+
+    // Pulls back out to the whole ship.
+    public void FocusOnAssembly()
+    {
+        focusedPart = null;
+        zoomLevel = 1f;
+        RequestFraming();
+    }
+
+    // Full recompute, for when the ship itself changed shape.
     public void RequestFraming()
+    {
+        if (!autoFrameCamera || AssemblyRoot == null) return;
+
+        assemblyRadius = ComputeAssemblyRadius();
+        UpdateFramingTarget();
+    }
+
+    // Works out where the camera wants to be. Cheap enough to run every frame, which is what keeps
+    // a focused part centred while the ship is being spun.
+    void UpdateFramingTarget()
     {
         if (!autoFrameCamera || builderCamera == null || AssemblyRoot == null) return;
 
-        float radius = ComputeAssemblyRadius();
+        Vector3 center;
+        float radius;
+
+        // A destroyed part compares equal to null, so removing what was focused falls back to the
+        // whole ship on its own.
+        if (focusedPart != null)
+        {
+            center = focusedPart.transform.TransformPoint(focusLocalCenter);
+            radius = focusRadius;
+        }
+        else
+        {
+            center = AssemblyRoot.position;
+            radius = assemblyRadius;
+        }
+
         if (radius <= 0f)
         {
             hasFramingTarget = false;
@@ -458,7 +663,7 @@ public class ShipBuilder : MonoBehaviour
 
         if (builderCamera.orthographic)
         {
-            builderCamera.orthographicSize = radius * framingPadding / usableWidth;
+            builderCamera.orthographicSize = radius * framingPadding * zoomLevel / usableWidth;
             halfWidthAtDistance = builderCamera.orthographicSize * builderCamera.aspect;
             distance = radius * 2f + builderCamera.nearClipPlane;
         }
@@ -469,12 +674,16 @@ public class ShipBuilder : MonoBehaviour
             float halfUsable = Mathf.Atan(Mathf.Tan(halfHorizontal) * usableWidth);
 
             // Distance at which a sphere of this radius fits inside the cone, taken for both axes.
-            distance = Mathf.Max(radius / Mathf.Sin(halfVertical), radius / Mathf.Sin(halfUsable)) * framingPadding;
+            distance = Mathf.Max(radius / Mathf.Sin(halfVertical), radius / Mathf.Sin(halfUsable));
+            distance *= framingPadding * zoomLevel;
+
+            // Zooming right in on a small fin must not push the camera inside the near plane.
+            distance = Mathf.Max(distance, builderCamera.nearClipPlane + radius * 1.05f);
             halfWidthAtDistance = Mathf.Tan(halfHorizontal) * distance;
         }
 
         Vector3 sideStep = builderCamera.transform.right * (halfWidthAtDistance * uiPanelFraction);
-        framingTarget = AssemblyRoot.position - framingDirection * distance + sideStep;
+        framingTarget = center - framingDirection * distance + sideStep;
         hasFramingTarget = true;
 
         if (framingSmoothTime <= 0f)
@@ -489,10 +698,65 @@ public class ShipBuilder : MonoBehaviour
 
     void LateUpdate()
     {
+        // Which sockets the hull is covering changes as the ship turns and as the camera moves, so
+        // it is re-tested on a slow tick rather than only when the build changes.
+        if (++occlusionFrameCounter >= Mathf.Max(1, occlusionCheckInterval))
+        {
+            occlusionFrameCounter = 0;
+            UpdateMarkerOcclusion();
+        }
+
+        // A focused part moves with the ship, so its framing has to be re-derived every frame.
+        if (focusedPart != null) UpdateFramingTarget();
+
         if (!hasFramingTarget || builderCamera == null || framingSmoothTime <= 0f) return;
 
         builderCamera.transform.position = Vector3.SmoothDamp(
             builderCamera.transform.position, framingTarget, ref framingVelocity, framingSmoothTime);
+    }
+
+    // Bounds of one part on its own. Uses the renderer list captured when the part was placed, which
+    // predates both its hard point markers and anything later bolted onto it - so focusing the core
+    // frames the hull rather than the entire ship hanging off it.
+    static bool TryMeasurePart(PlacedPart part, out Vector3 center, out float radius)
+    {
+        center = part.transform.position;
+        radius = 0f;
+
+        Bounds bounds = default;
+        bool measured = false;
+
+        foreach (Renderer renderer in part.renderers)
+        {
+            if (renderer == null) continue;
+
+            if (!measured)
+            {
+                bounds = renderer.bounds;
+                measured = true;
+            }
+            else
+            {
+                bounds.Encapsulate(renderer.bounds);
+            }
+        }
+
+        if (!measured) return false;
+
+        center = bounds.center;
+        radius = Mathf.Max(0.05f, bounds.extents.magnitude);
+        return true;
+    }
+
+    void ApplyZoom(float scrollDelta)
+    {
+        // Wheels report 120 per notch on Windows and roughly 1 elsewhere; normalise to notches so
+        // the sensitivity setting means the same thing on both.
+        float notches = Mathf.Abs(scrollDelta) >= 20f ? scrollDelta / 120f : scrollDelta;
+
+        // Exponential, so every notch changes the distance by the same proportion.
+        zoomLevel = Mathf.Clamp(zoomLevel * Mathf.Exp(-notches * zoomSensitivity), minZoom, maxZoom);
+        UpdateFramingTarget();
     }
 
     // Radius of a sphere around the stand that contains every placed part. Measured from the stand
@@ -558,7 +822,9 @@ public class ShipBuilder : MonoBehaviour
         Mouse mouse = Mouse.current;
         if (mouse == null || builderCamera == null) return;
 
-        if (mouse.leftButton.wasPressedThisFrame && !IsPointerOverUI())
+        bool overUI = IsPointerOverUI();
+
+        if (mouse.leftButton.wasPressedThisFrame && !overUI)
         {
             BeginPress(mouse.position.ReadValue());
         }
@@ -574,9 +840,28 @@ public class ShipBuilder : MonoBehaviour
 
         if (mouse.leftButton.wasReleasedThisFrame)
         {
+            // A press that never travelled far enough to become a drag is a click: zoom in on the
+            // piece and open up what can go in its place.
+            if (!dragging && pressedPart != null)
+            {
+                FocusOn(pressedPart);
+                OfferReplacementsFor(pressedPart);
+            }
+
             dragging = false;
             pressStartedOnModel = false;
+            pressedPart = null;
             pressTravel = Vector2.zero;
+        }
+
+        // Right click backs out to the whole ship again.
+        if (mouse.rightButton.wasPressedThisFrame && !overUI) FocusOnAssembly();
+
+        // The wheel belongs to the parts list while the pointer is over it.
+        if (!overUI)
+        {
+            float scroll = mouse.scroll.ReadValue().y;
+            if (Mathf.Abs(scroll) > 0.01f) ApplyZoom(scroll);
         }
     }
 
@@ -585,36 +870,40 @@ public class ShipBuilder : MonoBehaviour
         pressTravel = Vector2.zero;
         dragging = false;
         pressStartedOnModel = false;
+        pressedPart = null;
 
         Ray ray = builderCamera.ScreenPointToRay(screenPosition);
         RaycastHit[] hits = Physics.RaycastAll(ray, 5000f, ~0, QueryTriggerInteraction.Collide);
 
-        // Markers draw on top of the hull, so they have to win the pick as well - otherwise a
-        // socket tucked against the fuselage could never be clicked.
-        HardPointMarker marker = FindClosest<HardPointMarker>(hits);
+        // Markers draw over the hull, so they win the pick too. A socket on the far side is not a
+        // candidate here at all: the occlusion sweep disables its collider along with its renderer.
+        HardPointMarker marker = FindClosest<HardPointMarker>(hits, out _);
         if (marker != null && marker.hardPoint != null)
         {
             SelectHardPoint(marker.hardPoint);
             return;
         }
 
-        pressStartedOnModel = FindClosest<PlacedPart>(hits) != null;
+        // Remembered rather than acted on now: the same press might turn into a rotate drag, and
+        // only a press that stays put counts as a click on this part.
+        pressedPart = FindClosest<PlacedPart>(hits, out _);
+        pressStartedOnModel = pressedPart != null;
     }
 
     // Nearest hit whose collider belongs to a T, ignoring anything else the ray passes through.
-    static T FindClosest<T>(RaycastHit[] hits) where T : Component
+    static T FindClosest<T>(RaycastHit[] hits, out float distance) where T : Component
     {
-        float nearest = float.MaxValue;
+        distance = float.MaxValue;
         T best = null;
 
         foreach (RaycastHit hit in hits)
         {
-            if (hit.distance >= nearest) continue;
+            if (hit.distance >= distance) continue;
 
             T candidate = hit.collider.GetComponentInParent<T>();
             if (candidate == null) continue;
 
-            nearest = hit.distance;
+            distance = hit.distance;
             best = candidate;
         }
         return best;

@@ -41,7 +41,19 @@ public static class ShipBuilderSceneSetup
         builder.assemblyOffset = Vector3.zero;
 
         if (builderObject.GetComponent<PartThumbnailRenderer>() == null) Undo.AddComponent<PartThumbnailRenderer>(builderObject);
-        if (builderObject.GetComponent<ShipBuilderUI>() == null) Undo.AddComponent<ShipBuilderUI>(builderObject);
+
+        ShipBuilderUI ui = builderObject.GetComponent<ShipBuilderUI>();
+        if (ui == null) ui = Undo.AddComponent<ShipBuilderUI>(builderObject);
+
+        // Build the panel into the scene rather than leaving it to appear on play, so it can be
+        // selected and restyled. An existing panel is left alone - re-running setup must not throw
+        // away someone's styling.
+        if (ui.canvas == null)
+        {
+            ui.BuildHierarchy();
+            Undo.RegisterCreatedObjectUndo(ui.canvas.gameObject, "Create Ship Builder UI");
+            EditorUtility.SetDirty(ui);
+        }
 
         EditorUtility.SetDirty(builderObject);
         EditorSceneManager.MarkSceneDirty(builderObject.scene);

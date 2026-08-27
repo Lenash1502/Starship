@@ -2,12 +2,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Builds and drives the right hand parts panel.
+// Drives the right hand parts panel.
 //
-// The whole hierarchy is created in code so the menu works in any scene that has a ShipBuilder in
-// it - drop the component on, press play, and the list is there. Everything that affects how it
-// looks is exposed below, and the layout can still be reskinned afterwards because the objects it
-// creates are ordinary uGUI objects.
+// The panel can live in the scene as ordinary uGUI objects, built once by
+// Tools > Ship Builder > Create UI In Scene and then restyled in the inspector like anything else.
+// If the references below are empty it falls back to building the same hierarchy at runtime, so the
+// menu still works in a scene nobody has dressed yet.
+//
+// Everything the list needs is driven through these references, so moving, recolouring or
+// re-fonting any of it is safe: only the wiring matters, not the layout.
 [RequireComponent(typeof(ShipBuilder))]
 public class ShipBuilderUI : MonoBehaviour
 {
@@ -15,12 +18,30 @@ public class ShipBuilderUI : MonoBehaviour
     public ShipBuilder builder;
     public PartThumbnailRenderer thumbnails;
 
-    [Header("Panel")]
+    [Header("Scene Objects (leave empty to build the panel at runtime)")]
+    [Tooltip("Root canvas of the panel. Its presence is what tells the component the panel was " +
+             "authored in the scene rather than generated on play.")]
+    public Canvas canvas;
+    [Tooltip("The panel itself. Its width decides how much of the view the ship has to fit into.")]
+    public RectTransform panelRect;
+    [Tooltip("Parent the part entries are spawned under, normally carrying a GridLayoutGroup.")]
+    public RectTransform content;
+    [Tooltip("Inactive entry cloned once per offered part. Restyle this one and the whole list follows.")]
+    public PartListItem itemTemplate;
+    public Text titleText;
+    public Text subtitleText;
+    public Text footerText;
+    [Tooltip("Shown when a mount has no parts to offer.")]
+    public Text emptyText;
+    public Button coreButton;
+    public Button removeButton;
+
+    [Header("Panel Style")]
     public float panelWidth = 360f;
     public Color panelColor = new Color(0.05f, 0.06f, 0.09f, 0.92f);
     public Color headerColor = new Color(0.09f, 0.11f, 0.16f, 1f);
 
-    [Header("List")]
+    [Header("List Style")]
     public int columns = 2;
     public Vector2 cellSize = new Vector2(158f, 186f);
     public Vector2 cellSpacing = new Vector2(8f, 8f);
@@ -28,7 +49,7 @@ public class ShipBuilderUI : MonoBehaviour
     public Color itemHoverColor = new Color(0.2f, 0.28f, 0.38f, 1f);
     public Color itemSelectedColor = new Color(0.85f, 0.5f, 0.12f, 1f);
 
-    [Header("Text")]
+    [Header("Text Style")]
     public Color titleColor = Color.white;
     public Color subtitleColor = new Color(0.65f, 0.72f, 0.82f, 1f);
     public int titleFontSize = 26;
@@ -36,17 +57,7 @@ public class ShipBuilderUI : MonoBehaviour
     public int labelFontSize = 14;
 
     readonly List<PartListItem> items = new List<PartListItem>();
-
-    Font font;
-    Canvas canvas;
-    RectTransform panelRect;
     float lastPanelFraction = -1f;
-    Text titleText;
-    Text subtitleText;
-    Text footerText;
-    Text emptyText;
-    RectTransform content;
-    GameObject removeButton;
 
     void Awake()
     {
@@ -54,10 +65,20 @@ public class ShipBuilderUI : MonoBehaviour
         if (thumbnails == null) thumbnails = GetComponent<PartThumbnailRenderer>();
         if (thumbnails == null) thumbnails = gameObject.AddComponent<PartThumbnailRenderer>();
 
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        if (font == null) font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        // Nothing authored in the scene, so put the same panel together on the fly.
+        if (canvas == null) BuildHierarchy();
 
-        BuildHierarchy();
+        WarnAboutMissingReferences();
+        WireButtons();
+    }
+
+    // A panel that was restyled by hand can lose a reference to a deleted object, and the symptom -
+    // a list that simply never fills - gives no hint why. Say so instead.
+    void WarnAboutMissingReferences()
+    {
+        if (content == null) Debug.LogWarning("[Ship Builder] Parts panel has no Content assigned, so no part entries can be spawned.", this);
+        if (itemTemplate == null) Debug.LogWarning("[Ship Builder] Parts panel has no Item Template assigned, so the list will stay empty.", this);
+        if (panelRect == null) Debug.LogWarning("[Ship Builder] Parts panel has no Panel Rect assigned; the camera cannot allow for the space it covers.", this);
     }
 
     void OnEnable()
@@ -95,10 +116,121 @@ public class ShipBuilderUI : MonoBehaviour
         builder.RequestFraming();
     }
 
+    // Listeners are added in code rather than saved on the buttons, so an authored panel does not
+    // need its events wired up by hand in the inspector.
+    void WireButtons()
+    {
+        if (coreButton != null)
+        {
+            coreButton.onClick.RemoveAllListeners();
+            coreButton.onClick.AddListener(() => builder.ShowCoreOffer());
+        }
+
+        if (removeButton != null)
+        {
+            removeButton.onClick.RemoveAllListeners();
+            removeButton.onClick.AddListener(() =>
+            {
+                builder.RemoveSelectedPart();
+                RebuildList();
+            });
+        }
+    }
+
+    // ---------------------------------------------------------------- population
+
+    public void RebuildList()
+    {
+        if (content == null || builder == null) return;
+
+        foreach (PartListItem item in items)
+        {
+            if (item != null) Destroy(item.gameObject);
+        }
+        items.Clear();
+
+        if (titleText != null) titleText.text = builder.OfferTitle;
+        if (subtitleText != null) subtitleText.text = builder.OfferSubtitle;
+
+        if (removeButton != null)
+        {
+            bool canRemove = !builder.IsChoosingCore && builder.SelectedHardPoint != null && builder.SelectedHardPoint.IsOccupied;
+            removeButton.gameObject.SetActive(canRemove);
+        }
+
+        List<ShipPartDefinition> offer = builder.CurrentOffer;
+        if (emptyText != null) emptyText.gameObject.SetActive(offer.Count == 0);
+
+        if (itemTemplate != null)
+        {
+            ShipPartDefinition current = CurrentlyPlacedDefinition();
+            foreach (ShipPartDefinition definition in offer)
+            {
+                PartListItem item = CreateItem(definition);
+                item.SetSelected(definition == current);
+                items.Add(item);
+            }
+        }
+
+        RefreshStats();
+    }
+
+    ShipPartDefinition CurrentlyPlacedDefinition()
+    {
+        if (builder.IsChoosingCore) return builder.Core != null ? builder.Core.definition : null;
+        if (builder.SelectedHardPoint == null || builder.SelectedHardPoint.occupant == null) return null;
+        return builder.SelectedHardPoint.occupant.definition;
+    }
+
+    PartListItem CreateItem(ShipPartDefinition definition)
+    {
+        // Cloned from an inactive template, so it is fully set up before it can receive any pointer
+        // events.
+        PartListItem item = Instantiate(itemTemplate, content);
+        item.name = "Item " + definition.displayName;
+
+        if (item.thumbnail != null)
+        {
+            item.thumbnail.texture = thumbnails != null ? thumbnails.GetThumbnail(definition.prefab) : null;
+        }
+
+        item.Bind(builder, definition, itemColor, itemHoverColor, itemSelectedColor);
+        item.gameObject.SetActive(true);
+
+        var button = item.GetComponent<Button>();
+        if (button != null)
+        {
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() =>
+            {
+                item.OnClicked();
+                RebuildList();
+            });
+        }
+
+        return item;
+    }
+
+    void RefreshStats()
+    {
+        if (footerText == null || builder == null) return;
+
+        float mass = builder.TotalMass;
+        footerText.text = mass > 0f
+            ? string.Format("Parts: {0}    Mass: {1:0} kg", builder.PartCount, mass)
+            : string.Format("Parts: {0}", builder.PartCount);
+    }
+
     // ---------------------------------------------------------------- construction
 
-    void BuildHierarchy()
+    // Builds the panel and fills in every reference above. Public because the editor menu item runs
+    // exactly this at edit time, which is what makes the result inspectable rather than conjured on
+    // play. Safe to run outside play mode: nothing here touches runtime-only API.
+    public void BuildHierarchy()
     {
+        Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        if (font == null) font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+
         var canvasObject = new GameObject("Ship Builder UI", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
         canvasObject.transform.SetParent(transform, false);
 
@@ -111,16 +243,15 @@ public class ShipBuilderUI : MonoBehaviour
         scaler.matchWidthOrHeight = 0.5f;
 
         // Panel pinned to the right edge, full height.
-        RectTransform panel = CreateRect("Parts Panel", canvasObject.transform);
-        panel.anchorMin = new Vector2(1f, 0f);
-        panel.anchorMax = new Vector2(1f, 1f);
-        panel.pivot = new Vector2(1f, 0.5f);
-        panel.sizeDelta = new Vector2(panelWidth, 0f);
-        panel.anchoredPosition = Vector2.zero;
-        panelRect = panel;
-        AddImage(panel.gameObject, panelColor);
+        panelRect = CreateRect("Parts Panel", canvasObject.transform);
+        panelRect.anchorMin = new Vector2(1f, 0f);
+        panelRect.anchorMax = new Vector2(1f, 1f);
+        panelRect.pivot = new Vector2(1f, 0.5f);
+        panelRect.sizeDelta = new Vector2(panelWidth, 0f);
+        panelRect.anchoredPosition = Vector2.zero;
+        AddImage(panelRect.gameObject, panelColor);
 
-        var panelLayout = panel.gameObject.AddComponent<VerticalLayoutGroup>();
+        var panelLayout = panelRect.gameObject.AddComponent<VerticalLayoutGroup>();
         panelLayout.padding = new RectOffset(10, 10, 10, 10);
         panelLayout.spacing = 8f;
         panelLayout.childControlWidth = true;
@@ -128,12 +259,14 @@ public class ShipBuilderUI : MonoBehaviour
         panelLayout.childForceExpandWidth = true;
         panelLayout.childForceExpandHeight = false;
 
-        BuildHeader(panel);
-        BuildScrollView(panel);
-        BuildFooter(panel);
+        BuildHeader(panelRect, font);
+        BuildScrollView(panelRect, font);
+
+        footerText = CreateText(panelRect, "Footer", string.Empty, subtitleFontSize, subtitleColor, FontStyle.Normal, font);
+        AddLayoutElement(footerText.gameObject, 22f, 0f);
     }
 
-    void BuildHeader(RectTransform panel)
+    void BuildHeader(RectTransform panel, Font font)
     {
         RectTransform header = CreateRect("Header", panel);
         AddImage(header.gameObject, headerColor);
@@ -146,8 +279,11 @@ public class ShipBuilderUI : MonoBehaviour
         headerLayout.childForceExpandWidth = true;
         headerLayout.childForceExpandHeight = false;
 
-        titleText = CreateText(header, "Title", "Core", titleFontSize, titleColor, FontStyle.Bold);
-        subtitleText = CreateText(header, "Subtitle", "Choose a hull to start from", subtitleFontSize, subtitleColor, FontStyle.Normal);
+        titleText = CreateText(header, "Title", "Core", titleFontSize, titleColor, FontStyle.Bold, font);
+        AddLayoutElement(titleText.gameObject, titleFontSize + 10f, 0f);
+
+        subtitleText = CreateText(header, "Subtitle", "Choose a hull to start from", subtitleFontSize, subtitleColor, FontStyle.Normal, font);
+        AddLayoutElement(subtitleText.gameObject, subtitleFontSize + 10f, 0f);
 
         RectTransform buttons = CreateRect("Buttons", header);
         var buttonLayout = buttons.gameObject.AddComponent<HorizontalLayoutGroup>();
@@ -158,15 +294,11 @@ public class ShipBuilderUI : MonoBehaviour
         buttonLayout.childForceExpandHeight = false;
         AddLayoutElement(buttons.gameObject, 30f, 0f);
 
-        CreateButton(buttons, "Core Button", "Core", () => builder.ShowCoreOffer());
-        removeButton = CreateButton(buttons, "Remove Button", "Remove", () =>
-        {
-            builder.RemoveSelectedPart();
-            RebuildList();
-        });
+        coreButton = CreateButton(buttons, "Core Button", "Core", font);
+        removeButton = CreateButton(buttons, "Remove Button", "Remove", font);
     }
 
-    void BuildScrollView(RectTransform panel)
+    void BuildScrollView(RectTransform panel, Font font)
     {
         RectTransform scroll = CreateRect("Scroll View", panel);
         AddLayoutElement(scroll.gameObject, 0f, 1f);
@@ -203,7 +335,9 @@ public class ShipBuilderUI : MonoBehaviour
         scrollRect.viewport = viewport;
         scrollRect.content = content;
 
-        emptyText = CreateText(scroll, "Empty Notice", "No parts available for this mount yet.", subtitleFontSize, subtitleColor, FontStyle.Italic);
+        itemTemplate = BuildItemTemplate(content, font);
+
+        emptyText = CreateText(scroll, "Empty Notice", "No parts available for this mount yet.", subtitleFontSize, subtitleColor, FontStyle.Italic, font);
         RectTransform emptyRect = emptyText.rectTransform;
         emptyRect.anchorMin = new Vector2(0f, 0.5f);
         emptyRect.anchorMax = new Vector2(1f, 0.5f);
@@ -213,53 +347,11 @@ public class ShipBuilderUI : MonoBehaviour
         emptyText.gameObject.SetActive(false);
     }
 
-    void BuildFooter(RectTransform panel)
+    // The one entry every list item is cloned from. It lives in the scene, inactive, so it can be
+    // restyled once instead of the look being buried in code.
+    PartListItem BuildItemTemplate(RectTransform parent, Font font)
     {
-        footerText = CreateText(panel, "Footer", string.Empty, subtitleFontSize, subtitleColor, FontStyle.Normal);
-        AddLayoutElement(footerText.gameObject, 22f, 0f);
-    }
-
-    // ---------------------------------------------------------------- population
-
-    public void RebuildList()
-    {
-        if (content == null) return;
-
-        foreach (PartListItem item in items)
-        {
-            if (item != null) Destroy(item.gameObject);
-        }
-        items.Clear();
-
-        titleText.text = builder.OfferTitle;
-        subtitleText.text = builder.OfferSubtitle;
-        removeButton.SetActive(!builder.IsChoosingCore && builder.SelectedHardPoint != null && builder.SelectedHardPoint.IsOccupied);
-
-        List<ShipPartDefinition> offer = builder.CurrentOffer;
-        emptyText.gameObject.SetActive(offer.Count == 0);
-
-        ShipPartDefinition current = CurrentlyPlacedDefinition();
-
-        foreach (ShipPartDefinition definition in offer)
-        {
-            PartListItem item = CreateItem(definition);
-            item.SetSelected(definition == current);
-            items.Add(item);
-        }
-
-        RefreshStats();
-    }
-
-    ShipPartDefinition CurrentlyPlacedDefinition()
-    {
-        if (builder.IsChoosingCore) return builder.Core != null ? builder.Core.definition : null;
-        if (builder.SelectedHardPoint == null || builder.SelectedHardPoint.occupant == null) return null;
-        return builder.SelectedHardPoint.occupant.definition;
-    }
-
-    PartListItem CreateItem(ShipPartDefinition definition)
-    {
-        RectTransform itemRect = CreateRect("Item " + definition.displayName, content);
+        RectTransform itemRect = CreateRect("Item Template", parent);
         Image background = AddImage(itemRect.gameObject, itemColor);
 
         RectTransform thumbRect = CreateRect("Thumbnail", itemRect);
@@ -270,10 +362,9 @@ public class ShipBuilderUI : MonoBehaviour
         thumbRect.anchoredPosition = new Vector2(0f, -6f);
 
         var raw = thumbRect.gameObject.AddComponent<RawImage>();
-        raw.texture = thumbnails != null ? thumbnails.GetThumbnail(definition.prefab) : null;
         raw.raycastTarget = false;
 
-        Text label = CreateText(itemRect, "Label", definition.displayName, labelFontSize, titleColor, FontStyle.Normal);
+        Text label = CreateText(itemRect, "Label", "Part", labelFontSize, titleColor, FontStyle.Normal, font);
         RectTransform labelRect = label.rectTransform;
         labelRect.anchorMin = new Vector2(0f, 0f);
         labelRect.anchorMax = new Vector2(1f, 0f);
@@ -281,35 +372,19 @@ public class ShipBuilderUI : MonoBehaviour
         labelRect.sizeDelta = new Vector2(-8f, 30f);
         labelRect.anchoredPosition = new Vector2(0f, 4f);
         label.alignment = TextAnchor.MiddleCenter;
-        label.horizontalOverflow = HorizontalWrapMode.Wrap;
         label.raycastTarget = false;
+
+        var button = itemRect.gameObject.AddComponent<Button>();
+        button.transition = Selectable.Transition.None;
+        button.targetGraphic = background;
 
         var item = itemRect.gameObject.AddComponent<PartListItem>();
         item.background = background;
         item.thumbnail = raw;
         item.label = label;
-        item.Bind(builder, definition, itemColor, itemHoverColor, itemSelectedColor);
 
-        var button = itemRect.gameObject.AddComponent<Button>();
-        button.transition = Selectable.Transition.None;
-        button.targetGraphic = background;
-        button.onClick.AddListener(() =>
-        {
-            item.OnClicked();
-            RebuildList();
-        });
-
+        itemRect.gameObject.SetActive(false);
         return item;
-    }
-
-    void RefreshStats()
-    {
-        if (footerText == null || builder == null) return;
-
-        float mass = builder.TotalMass;
-        footerText.text = mass > 0f
-            ? string.Format("Parts: {0}    Mass: {1:0} kg", builder.PartCount, mass)
-            : string.Format("Parts: {0}", builder.PartCount);
     }
 
     // ---------------------------------------------------------------- uGUI helpers
@@ -332,13 +407,14 @@ public class ShipBuilderUI : MonoBehaviour
     {
         LayoutElement element = target.GetComponent<LayoutElement>();
         if (element == null) element = target.AddComponent<LayoutElement>();
+
         element.minHeight = minHeight;
         element.preferredHeight = minHeight;
         element.flexibleHeight = flexibleHeight;
         return element;
     }
 
-    Text CreateText(Transform parent, string name, string value, int size, Color color, FontStyle style)
+    static Text CreateText(Transform parent, string name, string value, int size, Color color, FontStyle style, Font font)
     {
         RectTransform rect = CreateRect(name, parent);
         var text = rect.gameObject.AddComponent<Text>();
@@ -351,34 +427,31 @@ public class ShipBuilderUI : MonoBehaviour
         text.horizontalOverflow = HorizontalWrapMode.Wrap;
         text.verticalOverflow = VerticalWrapMode.Truncate;
         text.raycastTarget = false;
-
-        AddLayoutElement(rect.gameObject, size + 10f, 0f);
         return text;
     }
 
-    GameObject CreateButton(Transform parent, string name, string caption, UnityEngine.Events.UnityAction action)
+    Button CreateButton(Transform parent, string name, string caption, Font font)
     {
         RectTransform rect = CreateRect(name, parent);
         Image background = AddImage(rect.gameObject, itemColor);
 
-        Text label = CreateText(rect, "Label", caption, labelFontSize, titleColor, FontStyle.Bold);
+        Text label = CreateText(rect, "Label", caption, labelFontSize, titleColor, FontStyle.Bold, font);
         RectTransform labelRect = label.rectTransform;
         labelRect.anchorMin = Vector2.zero;
         labelRect.anchorMax = Vector2.one;
         labelRect.sizeDelta = Vector2.zero;
         labelRect.anchoredPosition = Vector2.zero;
         label.alignment = TextAnchor.MiddleCenter;
-        Destroy(label.GetComponent<LayoutElement>());
 
         var button = rect.gameObject.AddComponent<Button>();
         button.targetGraphic = background;
+
         ColorBlock colors = button.colors;
         colors.normalColor = Color.white;
         colors.highlightedColor = new Color(1.4f, 1.4f, 1.4f, 1f);
         colors.pressedColor = new Color(0.8f, 0.8f, 0.8f, 1f);
         button.colors = colors;
-        button.onClick.AddListener(action);
 
-        return rect.gameObject;
+        return button;
     }
 }

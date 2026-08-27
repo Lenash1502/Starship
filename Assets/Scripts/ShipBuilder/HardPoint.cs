@@ -17,6 +17,36 @@ public class HardPoint : MonoBehaviour
 
     public bool IsOccupied => occupant != null;
 
+    // Which side of the ship this socket is really on.
+    //
+    // A socket that names no side is not necessarily central: "PrimaryWeaponHardPoint" inside
+    // "Wing_Var3_L" is on the left wing, and offering it a right hand gun would be wrong. So when
+    // the name is silent, the answer is inherited from whatever it is bolted to - walking out
+    // through the part that owns this socket, the socket that part sits in, and so on until a name
+    // does declare a side. The nearest declaration wins, and a core reaching the stand ends the
+    // walk with no side at all.
+    public PartSide EffectiveSide
+    {
+        get
+        {
+            if (side != PartSide.None) return side;
+
+            PlacedPart part = owner;
+            while (part != null)
+            {
+                if (part.definition != null && part.definition.side != PartSide.None) return part.definition.side;
+
+                HardPoint mount = part.attachedTo;
+                if (mount == null) break;
+                if (mount.side != PartSide.None) return mount.side;
+
+                part = mount.owner;
+            }
+
+            return PartSide.None;
+        }
+    }
+
     public string DisplayName
     {
         get
