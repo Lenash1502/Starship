@@ -4,20 +4,28 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-// The second builder screen, for the redesigned modules in Assets/Prefabs/ShipModules.
+// The builder screen for the part library in Assets/Prefabs/ShipParts.
 //
-// The flow is the reverse of the original ShipBuilder. There the player picked a socket and then
-// chose what went in it; here the ship starts with its core already on the stand, the player picks
-// a module from the list first, and the sockets that can take it light up. Hovering one shows the
-// module ghosted into place, clicking bolts it on, and the module stays in hand so a run of nine
-// tails can be placed without going back to the list each time.
+// Every prefab there declares only the sockets it really has, and parks a blockout copy of the
+// matching generic module inside each one, so a bare core already shows where its wings, tails and
+// thrusters are meant to go. Those blockouts are scenery - SocketPlaceholder keeps them out of
+// picking, physics and overlap - and vanish as real parts take their place.
 //
-// The module prefabs carry no side suffixes or numbering - every socket is just "<Category>HardPoint"
-// and there may be many of them side by side - so matching is category only.
+// The flow starts at the core. Nothing is on the stand when the screen opens: the first choice is
+// which hull to build on, and only then do the other categories open up. From there the player
+// picks a model from the list, the sockets that can take it light up, hovering one shows it ghosted
+// into place and clicking bolts it on. The model stays in hand so a row of nine tails can be placed
+// without going back to the list each time. Clicking a blockout instead asks the list to open that
+// category, which is how an empty socket says what it is waiting for.
+//
+// What the player picks is a model, not a prefab: Aegis_Wing_L and Aegis_Wing_R are one entry in the
+// list, and the socket decides which half gets used. Sockets and models are matched on category,
+// with the side narrowing it - a left shoulder takes the left wing, and a mount that names no side
+// takes whichever half the model offers.
 [DisallowMultipleComponent]
 public class ShipBuilder2 : MonoBehaviour
 {
-    public const string CoreCategory = "Core";
+    public const string CoreCategory = PartNaming.CoreCategory;
 
     [Header("Data")]
     public ShipPartCatalog catalog;
@@ -44,27 +52,62 @@ public class ShipBuilder2 : MonoBehaviour
     [Tooltip("Thickness of the far side outline, as a fraction of the marker radius.")]
     [Range(0f, 0.5f)] public float markerOccludedOutlineWidth = 0.24f;
 
+    [Header("Socket Orientation")]
+    [Tooltip("Categories whose parts are modelled on the hull's own axis, the way the engines and " +
+             "the cores both run down Z. A socket of one of these that faces against the hull is a " +
+             "mistake rather than a style, and is turned round when the part it belongs to is " +
+             "registered. Add categories here as more of the library is built out.")]
+    public string[] autoOrientCategories = { "Engine" };
+    [Tooltip("How far past square on a socket has to face before it counts as facing backwards. " +
+             "0 turns anything more than ninety degrees out; raise it to leave sockets that point " +
+             "sideways alone and only correct the ones pointing squarely aft.")]
+    [Range(0f, 0.95f)] public float autoOrientThreshold;
+
+    [Header("Socket Blockouts")]
+    [Tooltip("Show the generic module the artist parked in each empty socket, so the shape of what " +
+             "belongs there is visible before anything is chosen.")]
+    public bool showSocketPlaceholders = true;
+    public Color placeholderColor = new Color(0.30f, 0.45f, 0.62f, 0.16f);
+    public Color placeholderRimColor = new Color(0.45f, 0.65f, 0.85f, 0.45f);
+
     [Header("Preview")]
     public Color ghostColor = new Color(0.35f, 0.85f, 1f, 0.3f);
     public Color ghostRimColor = new Color(0.6f, 0.95f, 1f, 1f);
-    [Tooltip("Colour of the preview when the module would bury itself in existing structure.")]
+    [Tooltip("Colour of the preview when the part would bury itself in existing structure.")]
     public Color ghostBlockedColor = new Color(1f, 0.2f, 0.15f, 0.35f);
     public Color ghostBlockedRimColor = new Color(1f, 0.45f, 0.35f, 1f);
 
     [Header("Overlap Warning")]
-    [Tooltip("Fraction of the module's own volume that may sit inside other structure before the " +
+    [Tooltip("Fraction of the part's own volume that may sit inside other structure before the " +
              "preview turns red. Joins overlap a little by design, so this is not zero.")]
     [Range(0f, 1f)] public float overlapWarningThreshold = 0.25f;
-    [Tooltip("Points sampled inside the module to measure how much of it is buried. Higher is more " +
-             "accurate and slower; every candidate socket is measured once when a module is picked " +
+    [Tooltip("Points sampled inside the part to measure how much of it is buried. Higher is more " +
+             "accurate and slower; every candidate socket is measured once when a part is picked " +
              "up and again whenever the ship changes, never per frame.")]
     [Range(24, 600)] public int overlapSampleCount = 160;
-    [Tooltip("Ignore overlap with the part the socket belongs to. A module is designed to seat into " +
+    [Tooltip("Ignore overlap with the part the socket belongs to. A part is designed to seat into " +
              "its parent, so counting that would flag every placement.")]
     public bool ignoreOverlapWithParent = true;
-    [Tooltip("Do not show a socket at all when the module would clash there. Turn off to show it " +
+    [Tooltip("Do not show a socket at all when the part would clash there. Turn off to show it " +
              "anyway, previewed as a red hologram and still refused on click.")]
     public bool hideBlockedSockets = true;
+
+    [Header("Random Ship")]
+    [Tooltip("How many rounds of filling the random builder runs. 1 fills the core's own sockets, " +
+             "2 also fills the sockets on whatever those parts brought with them, and so on.")]
+    [Range(1, 6)] public int randomDepth = 2;
+    [Tooltip("Ceiling on how many parts one generated ship may have, so a deep run cannot lock the " +
+             "editor up measuring overlap for thousands of placements.")]
+    public int maxRandomParts = 150;
+    [Tooltip("How many candidates are tried per socket before it is left empty. Each try costs one " +
+             "overlap measurement.")]
+    [Range(1, 12)] public int randomCandidateTries = 5;
+    [Tooltip("Sample count used for the overlap test while generating. Lower than the interactive " +
+             "one because a generated ship makes hundreds of these measurements in a row.")]
+    [Range(24, 300)] public int randomOverlapSampleCount = 80;
+    [Tooltip("Give two sockets that differ only by side the same model, so generated ships come out " +
+             "symmetrical instead of odd on every shoulder.")]
+    public bool mirrorRandomShip = true;
 
     [Header("Rotation")]
     [Tooltip("Degrees of yaw/pitch per pixel of mouse travel while dragging the model.")]
@@ -72,39 +115,67 @@ public class ShipBuilder2 : MonoBehaviour
     [Tooltip("Pixels of travel before a press counts as a drag rather than a click.")]
     public float dragThreshold = 4f;
 
-    // Raised when the module in hand changes, when the ship itself changes, and when the socket
-    // under the pointer starts or stops refusing the module.
-    public event Action HeldModuleChanged;
+    // Raised when the part in hand changes, when the ship itself changes, and when the socket
+    // under the pointer starts or stops refusing the part.
+    public event Action HeldPartChanged;
     public event Action AssemblyChanged;
     public event Action PreviewChanged;
+
+    // Raised when the player clicks the hologram standing in for a part that has not been chosen
+    // yet. The blockout is the clearest statement of "something goes here", so acting on it means
+    // opening that category in the list - which is the list's business, not the builder's.
+    public event Action<string> CategoryRequested;
 
     public Transform AssemblyRoot { get; private set; }
     public PlacedPart Core { get; private set; }
 
-    // The module the player picked out of the list, waiting to be dropped onto a socket.
-    public ShipPartDefinition HeldModule { get; private set; }
+    // The model the player picked out of the list, waiting to be dropped onto a socket. A model,
+    // not a prefab: which of its mirrored halves gets used is decided by the socket it lands on.
+    // Never a core - a core goes straight onto the stand.
+    public ShipPartFamily HeldPart { get; private set; }
 
     // What the player last clicked on the ship while empty handed, so it can be removed.
     public PlacedPart SelectedPart { get; private set; }
 
-    // The seven attachable modules, in catalog order. The core is not among them: it is the root.
-    public List<ShipPartDefinition> Modules { get; private set; } = new List<ShipPartDefinition>();
+    // The hull currently on the stand, so the Core tab can show which one is in use.
+    public ShipPartFamily CoreFamily { get; private set; }
 
-    // True while the socket under the pointer would bury the module in existing structure, which is
+    // True while the socket under the pointer would bury the part in existing structure, which is
     // only reachable with hideBlockedSockets turned off - normally such a socket is not shown at all.
     public bool PreviewBlocked { get; private set; }
+
+    // Every category the catalog holds parts for, in tab order, with Core first.
+    public List<string> Categories { get; private set; } = new List<string>();
+
+    readonly Dictionary<string, List<ShipPartFamily>> familiesByCategory =
+        new Dictionary<string, List<ShipPartFamily>>();
+
+    // Handed back for any category the catalog has nothing for. Shared rather than freshly built
+    // each time, so a socket nobody can fill costs nothing to ask about.
+    static readonly List<ShipPartFamily> emptyFamilies = new List<ShipPartFamily>();
 
     readonly List<HardPoint> sockets = new List<HardPoint>();
     readonly List<Collider> overlapTargets = new List<Collider>();
     readonly List<Collider> shipColliders = new List<Collider>();
 
-    // Sockets where the module in hand would end up buried in existing structure. Worked out once
-    // when the module is picked up and again whenever the ship changes, rather than per hover: the
+    // Sockets where the part in hand would end up buried in existing structure. Worked out once
+    // when the part is picked up and again whenever the ship changes, rather than per hover: the
     // answer only depends on geometry, and the whole point is to know before the player points at it.
     readonly HashSet<HardPoint> blockedSockets = new HashSet<HardPoint>();
 
+    // Scratch lists for the random builder, reused so a two hundred part ship does not leave two
+    // hundred dead lists behind.
+    readonly List<ShipPartFamily> randomCandidates = new List<ShipPartFamily>();
+    readonly Dictionary<(PlacedPart owner, string category, string suffix), ShipPartFamily> randomFamilies =
+        new Dictionary<(PlacedPart, string, string), ShipPartFamily>();
+
+    // The distinct prefabs the model in hand would use across the sockets being measured - at most
+    // its left and its right half, so one probe each rather than one per socket.
+    readonly List<ShipPartDefinition> probeVariants = new List<ShipPartDefinition>();
+
     Material ghostMaterial;
     Material ghostBlockedMaterial;
+    Material placeholderMaterial;
     Material markerMaterial;
     Mesh markerMesh;
 
@@ -116,6 +187,7 @@ public class ShipBuilder2 : MonoBehaviour
     bool dragging;
     bool pressStartedOnModel;
     PlacedPart pressedPart;
+    HardPoint pressedPlaceholder;
     Vector2 pressTravel;
     int occlusionFrameCounter;
 
@@ -133,18 +205,14 @@ public class ShipBuilder2 : MonoBehaviour
         AssemblyRoot.SetParent(selectionCircle != null ? selectionCircle : transform, false);
 
         CreateSharedResources();
-        CollectModules();
-    }
-
-    void Start()
-    {
-        PlaceCore();
+        CollectCatalog();
     }
 
     void OnDestroy()
     {
         if (ghostMaterial != null) Destroy(ghostMaterial);
         if (ghostBlockedMaterial != null) Destroy(ghostBlockedMaterial);
+        if (placeholderMaterial != null) Destroy(placeholderMaterial);
         if (markerMaterial != null) Destroy(markerMaterial);
     }
 
@@ -159,6 +227,12 @@ public class ShipBuilder2 : MonoBehaviour
         ghostBlockedMaterial = new Material(ghostShader);
         if (ghostBlockedMaterial.HasProperty(ColorId)) ghostBlockedMaterial.SetColor(ColorId, ghostBlockedColor);
         if (ghostBlockedMaterial.HasProperty(RimColorId)) ghostBlockedMaterial.SetColor(RimColorId, ghostBlockedRimColor);
+
+        // The blockouts share the preview's shader but sit far fainter: they are a hint about what
+        // could go there, and must never compete with the part actually being previewed.
+        placeholderMaterial = new Material(ghostShader);
+        if (placeholderMaterial.HasProperty(ColorId)) placeholderMaterial.SetColor(ColorId, placeholderColor);
+        if (placeholderMaterial.HasProperty(RimColorId)) placeholderMaterial.SetColor(RimColorId, placeholderRimColor);
 
         markerMaterial = new Material(LoadShader("ShipBuilderMarker", "ShipBuilder/Marker"));
         markerMaterial.SetFloat(InnerRadiusId, markerRingInnerRadius);
@@ -199,92 +273,191 @@ public class ShipBuilder2 : MonoBehaviour
         return shader;
     }
 
-    // Everything in the catalog except the core, which is never chosen because it is always there.
-    void CollectModules()
+    // ---------------------------------------------------------------- catalog
+
+    // Splits the catalog into the tabs the list shows, folding each model's mirrored halves into a
+    // single entry. Done once at startup: the library only changes when prefabs are added in the
+    // editor, which means a catalog rebuild anyway.
+    void CollectCatalog()
     {
-        Modules.Clear();
-        if (catalog == null) return;
+        Categories.Clear();
+        familiesByCategory.Clear();
 
-        foreach (ShipPartDefinition definition in catalog.parts)
+        if (catalog == null)
         {
-            if (definition == null || !definition.IsValid) continue;
-            if (definition.category == CoreCategory) continue;
-
-            Modules.Add(definition);
+            Debug.LogError("[Ship Builder 2] No part catalog assigned. Run Tools > Ship Builder 2 > Rebuild Part Catalog.", this);
+            return;
         }
+
+        Categories = catalog.CategoriesInOrder();
+
+        foreach (string category in Categories)
+        {
+            var families = new List<ShipPartFamily>();
+            var byModel = new Dictionary<string, ShipPartFamily>();
+
+            // The catalog is already sorted by model name, so grouping in order keeps the tab in
+            // the same order the asset is in.
+            foreach (ShipPartDefinition definition in catalog.PartsInCategory(category))
+            {
+                string key = definition.modelName ?? definition.prefab.name;
+
+                if (!byModel.TryGetValue(key, out ShipPartFamily family))
+                {
+                    family = new ShipPartFamily
+                    {
+                        category = category,
+                        modelName = key,
+                        displayName = key
+                    };
+
+                    byModel.Add(key, family);
+                    families.Add(family);
+                }
+
+                family.Add(definition);
+            }
+
+            familiesByCategory[category] = families;
+        }
+
+        if (!familiesByCategory.ContainsKey(CoreCategory))
+        {
+            Debug.LogError($"[Ship Builder 2] No Core prefabs in the catalog ({catalog.sourceFolder}). " +
+                           "Nothing can be built until there is a hull to build on.", this);
+        }
+    }
+
+    // The models on one tab. Never null, so callers can walk it without checking - a category with
+    // no prefabs yet, which is most of the weapon mounts today, comes back empty. The list belongs
+    // to the builder and is read only by convention: a generated ship asks for a category it cannot
+    // fill dozens of times per run, and handing back a fresh list each time is pure garbage.
+    public List<ShipPartFamily> FamiliesInCategory(string category)
+    {
+        if (string.IsNullOrEmpty(category)) return emptyFamilies;
+
+        return familiesByCategory.TryGetValue(category, out List<ShipPartFamily> found) ? found : emptyFamilies;
+    }
+
+    // Whether a category is worth offering right now: everything waits on the core, and once the
+    // core is down a category with no free socket for it has nowhere to go.
+    public bool CategoryIsReachable(string category)
+    {
+        if (category == CoreCategory) return true;
+        if (Core == null) return false;
+
+        foreach (HardPoint socket in sockets)
+        {
+            if (socket != null && !socket.IsOccupied && socket.category == category) return true;
+        }
+        return false;
     }
 
     // ---------------------------------------------------------------- building
 
-    // The screen opens with a ship already on the stand, so there is something to hang modules off
-    // from the first frame.
-    public void PlaceCore()
+    // Puts a hull on the stand. Choosing a different core rebuilds from scratch, because the parts
+    // hanging off the old one were fitted to sockets this one may not even have.
+    public void PlaceCore(ShipPartFamily family)
     {
-        if (Core != null) return;
-        if (catalog == null) return;
+        if (family == null) return;
 
-        ShipPartDefinition coreDefinition = null;
-        foreach (ShipPartDefinition definition in catalog.parts)
-        {
-            if (definition != null && definition.IsValid && definition.category == CoreCategory)
-            {
-                coreDefinition = definition;
-                break;
-            }
-        }
+        // A hull sits on the stand rather than in a socket, so there is no side to resolve against.
+        ShipPartDefinition definition = family.VariantFor(PartSide.None);
+        if (definition == null || !definition.IsValid) return;
 
-        if (coreDefinition == null)
-        {
-            Debug.LogError($"[Ship Builder 2] No Core prefab in the catalog ({(catalog != null ? catalog.sourceFolder : "none")}).", this);
-            return;
-        }
+        ClearShip();
 
-        GameObject instance = Instantiate(coreDefinition.prefab, AssemblyRoot);
+        GameObject instance = Instantiate(definition.prefab, AssemblyRoot);
         instance.transform.localPosition = Vector3.zero;
         instance.transform.localRotation = Quaternion.identity;
         instance.transform.localScale = Vector3.one;
 
-        Core = RegisterPart(instance, coreDefinition, null);
+        Core = RegisterPart(instance, definition, null);
+        Core.family = family;
+        CoreFamily = family;
 
         RefreshPlacementOptions();
         FrameWholeShip(true);
         AssemblyChanged?.Invoke();
+        HeldPartChanged?.Invoke();
     }
 
-    // Picks a module up out of the list. Nothing is placed yet: the sockets that can take it simply
-    // start showing, and the next click on one of them commits it.
-    public void HoldModule(ShipPartDefinition definition)
+    // Strips the stand back to nothing. The old hierarchy is deactivated before it is destroyed:
+    // Destroy only takes effect at the end of the frame, and everything that runs in between -
+    // overlap measurement, picking, framing - must not still be finding the ship that just left.
+    public void ClearShip()
     {
-        if (definition == null || !definition.IsValid) return;
+        ClearGhost();
+        hoveredSocket = null;
+        pressedPlaceholder = null;
+        pressedPart = null;
+        HeldPart = null;
+        SelectedPart = null;
+        Core = null;
+        CoreFamily = null;
 
-        // Clicking the module already in hand puts it back down.
-        HeldModule = HeldModule == definition ? null : definition;
+        sockets.Clear();
+        blockedSockets.Clear();
+
+        if (AssemblyRoot == null) return;
+
+        for (int i = AssemblyRoot.childCount - 1; i >= 0; i--)
+        {
+            GameObject child = AssemblyRoot.GetChild(i).gameObject;
+            child.transform.SetParent(null, false);
+            child.SetActive(false);
+            Destroy(child);
+        }
+    }
+
+    // Picks a model up out of the list. Nothing is placed yet: the sockets that can take it simply
+    // start showing, and the next click on one of them commits it. Cores are the exception - there
+    // is only one place a hull can go, so choosing one puts it straight on the stand.
+    public void HoldPart(ShipPartFamily family)
+    {
+        if (family == null) return;
+
+        if (family.category == CoreCategory)
+        {
+            // Re-picking the hull already on the stand would only throw the ship away for nothing.
+            if (CoreFamily == family) return;
+
+            PlaceCore(family);
+            return;
+        }
+
+        // Everything else hangs off the core, so there is nothing to hold before one is chosen.
+        if (Core == null) return;
+
+        // Clicking the model already in hand puts it back down.
+        HeldPart = HeldPart == family ? null : family;
 
         SelectedPart = null;
         ClearGhost();
         RefreshPlacementOptions();
-        HeldModuleChanged?.Invoke();
+        HeldPartChanged?.Invoke();
     }
 
-    public void DropHeldModule()
+    public void DropHeldPart()
     {
-        if (HeldModule == null) return;
+        if (HeldPart == null) return;
 
-        HeldModule = null;
+        HeldPart = null;
         ClearGhost();
         RefreshPlacementOptions();
-        HeldModuleChanged?.Invoke();
+        HeldPartChanged?.Invoke();
     }
 
-    // A socket takes the module in hand if it names that category and is still free. Occupied ones
-    // are not offered: there is exactly one prefab per category, so dropping the same module onto a
-    // filled socket would achieve nothing. Clearing one out goes through Remove instead.
+    // A socket takes the model in hand if it names that category, is still free, and the model has
+    // a half that belongs on that side. Occupied ones are not offered; clearing one out goes through
+    // Remove instead.
     public bool Accepts(HardPoint socket)
     {
-        if (socket == null || HeldModule == null) return false;
-        if (socket.IsOccupied || socket.category != HeldModule.category) return false;
+        if (socket == null || HeldPart == null) return false;
+        if (socket.IsOccupied || socket.category != HeldPart.category) return false;
+        if (HeldPart.VariantFor(socket.EffectiveSide) == null) return false;
 
-        // A socket where the module would clash is simply not offered, so there is no marker to
+        // A socket where the part would clash is simply not offered, so there is no marker to
         // point at and no click to refuse.
         return !hideBlockedSockets || !blockedSockets.Contains(socket);
     }
@@ -294,27 +467,62 @@ public class ShipBuilder2 : MonoBehaviour
         if (!Accepts(socket)) return;
 
         // Refused outright, whether or not the socket was hidden. Several sockets sit close enough
-        // together that filling both would leave two modules in nearly the same space.
+        // together that filling both would leave two parts in nearly the same space.
         if (blockedSockets.Contains(socket)) return;
 
-        ShipPartDefinition definition = HeldModule;
         ClearGhost();
         hoveredSocket = null;
 
-        // Parenting to the socket is the whole placement: the empty already carries the position,
-        // orientation and scale the model author intended for whatever bolts on there.
-        GameObject instance = Instantiate(definition.prefab, socket.transform);
-        instance.transform.localPosition = Vector3.zero;
-        instance.transform.localRotation = Quaternion.identity;
-        instance.transform.localScale = Vector3.one;
+        // The socket decides which half of the model gets used: a left shoulder takes the left wing
+        // without the player ever having been asked which one they meant.
+        AttachPart(HeldPart, socket);
 
-        PlacedPart placed = RegisterPart(instance, definition, socket);
-        socket.occupant = placed;
-
-        // The module stays in hand, so a row of identical sockets can be filled in one go.
+        // The model stays in hand, so a row of identical sockets can be filled in one go.
         RefreshPlacementOptions();
         ReframeAfterChange();
         AssemblyChanged?.Invoke();
+    }
+
+    // Bolts a part into a socket and registers it, without any of the refreshing that follows a
+    // player placement - the random builder does hundreds of these and refreshes once at the end.
+    //
+    // Parenting to the socket is the whole placement: the empty already carries the position,
+    // orientation and scale the model author intended for whatever bolts on there. The flip rides
+    // on top of that, for the mounts where what the author intended is not what the part wants.
+    PlacedPart AttachPart(ShipPartFamily family, HardPoint socket, PartFlip flip = PartFlip.None, bool handSwapped = false)
+    {
+        if (family == null || socket == null) return null;
+
+        ShipPartDefinition definition = ResolveVariant(family, socket, handSwapped);
+        if (definition == null || !definition.IsValid) return null;
+
+        GameObject instance = Instantiate(definition.prefab, socket.transform);
+        instance.transform.localPosition = Vector3.zero;
+        instance.transform.localRotation = PlacementRotation(socket, definition.category, flip);
+        instance.transform.localScale = Vector3.one;
+
+        PlacedPart placed = RegisterPart(instance, definition, socket);
+        placed.family = family;
+        placed.flip = flip;
+        placed.handSwapped = handSwapped;
+        placed.autoOriented = NeedsAutoOrient(socket, definition.category);
+
+        socket.occupant = placed;
+        socket.SetPlaceholdersVisible(false);
+
+        return placed;
+    }
+
+    // Which half of a model goes into a socket: the one the socket's side asks for, unless the
+    // player has overruled that for this particular part.
+    static ShipPartDefinition ResolveVariant(ShipPartFamily family, HardPoint socket, bool handSwapped)
+    {
+        ShipPartDefinition chosen = family.VariantFor(socket.EffectiveSide);
+        if (!handSwapped) return chosen;
+
+        // Falls back to the side the socket asked for when the model has no other half, so the
+        // override can never leave a socket empty.
+        return family.Opposite(chosen) ?? chosen;
     }
 
     public void RemoveSelectedPart()
@@ -322,8 +530,191 @@ public class ShipBuilder2 : MonoBehaviour
         RemoveModule(SelectedPart);
     }
 
-    // Takes a module off the ship, along with everything hanging from it. The core is not removable:
-    // it is the thing the rest is built on.
+    // ---------------------------------------------------------------- reorienting
+
+    public void FlipSelectedPart(PartFlip half)
+    {
+        FlipPart(SelectedPart, half);
+    }
+
+    // Turns a placed part through a half turn about one of its axes.
+    //
+    // Some sockets were authored pointing the wrong way for the part that ends up in them - an
+    // engine facing forward, a gun aimed back down the hull - and which way is wrong depends on the
+    // configuration, so it cannot be fixed once in the prefab. Anything hanging off the part comes
+    // round with it, since it is all parented underneath.
+    public void FlipPart(PlacedPart part, PartFlip half)
+    {
+        if (part == null || half == PartFlip.None) return;
+
+        // Turning the hull on its stand would only turn the whole ship, which is what dragging is
+        // for.
+        if (part == Core) return;
+
+        part.flip = PartFlips.Compose(part.flip, half);
+
+        // Layered on top of the automatic correction rather than replacing it, so a player who
+        // turns a straightened engine gets the mount's original facing back - an override of the
+        // correction, not a fight with it.
+        part.transform.localRotation = PlacementRotation(part.attachedTo, part.definition.category, part.flip);
+
+        // The part now occupies different space, so both the flank its own sockets sit on and what
+        // would clash with it have changed.
+        Physics.SyncTransforms();
+        RefreshGeometricSides(part);
+
+        RefreshPlacementOptions();
+        AssemblyChanged?.Invoke();
+    }
+
+    // Whether a part can be swapped for the opposite half of its own model.
+    public bool CanMirror(PlacedPart part)
+    {
+        return part != null && part != Core && part.attachedTo != null
+               && part.family != null && part.family.IsMirrored;
+    }
+
+    public void MirrorSelectedPart()
+    {
+        MirrorPart(SelectedPart);
+    }
+
+    // Swaps a part for the other half of its model - the left wing for the right one - in the socket
+    // it is already in.
+    //
+    // This is the answer when the side was read wrong rather than when the orientation was: an
+    // unsuffixed mount is assigned a flank by where it sits, and where that guess is off, no amount
+    // of turning will produce the shape of the other hand. A mirrored prefab is used rather than a
+    // negative scale, which would invert the model's normals and light it inside out.
+    //
+    // Everything hanging off the part is rebuilt onto the matching sockets of its mirror image. The
+    // children are re-resolved rather than copied across, so a left wing's left hand guns become
+    // right hand guns on the right wing without anyone having to say so.
+    public void MirrorPart(PlacedPart part)
+    {
+        if (!CanMirror(part)) return;
+
+        HardPoint socket = part.attachedTo;
+        bool wasSelected = SelectedPart == part;
+
+        PlacementSnapshot snapshot = CaptureSubtree(part);
+        snapshot.handSwapped = !snapshot.handSwapped;
+
+        ClearGhost();
+        hoveredSocket = null;
+        RemovePart(part);
+
+        PlacedPart rebuilt = RestoreSubtree(snapshot, socket, out int dropped);
+        SelectedPart = wasSelected ? rebuilt : null;
+
+        RefreshPlacementOptions();
+
+        // The camera was anchored to the part that has just been destroyed, so it has to be given
+        // the replacement rather than being left to fall back to the whole ship - the player is
+        // mirroring this part precisely because they are looking at it.
+        if (rebuilt != null && wasSelected) FocusOn(rebuilt);
+        else ReframeAfterChange();
+
+        AssemblyChanged?.Invoke();
+
+        if (dropped > 0)
+        {
+            Debug.LogWarning($"[Ship Builder 2] Mirroring {snapshot.family.displayName} dropped {dropped} " +
+                             "attached part(s): the mirrored model does not have the sockets they were in.", this);
+        }
+    }
+
+    // What a part is, rather than which objects it is made of, so it can be built again from
+    // scratch. Models rather than prefabs, so the rebuild re-resolves every side from the sockets
+    // it lands in.
+    class PlacementSnapshot
+    {
+        public ShipPartFamily family;
+        public PartFlip flip;
+        public bool handSwapped;
+
+        // Which socket of the parent this sat in. Matched by name on the way back, because the two
+        // halves of a mirrored model carry the same socket names.
+        public string socketName;
+
+        public readonly List<PlacementSnapshot> children = new List<PlacementSnapshot>();
+    }
+
+    PlacementSnapshot CaptureSubtree(PlacedPart part)
+    {
+        var snapshot = new PlacementSnapshot
+        {
+            family = part.family,
+            flip = part.flip,
+            handSwapped = part.handSwapped
+        };
+
+        foreach (HardPoint socket in part.hardPoints)
+        {
+            if (socket == null || socket.occupant == null) continue;
+
+            PlacementSnapshot child = CaptureSubtree(socket.occupant);
+            child.socketName = socket.name;
+            snapshot.children.Add(child);
+        }
+
+        return snapshot;
+    }
+
+    PlacedPart RestoreSubtree(PlacementSnapshot snapshot, HardPoint socket, out int dropped)
+    {
+        dropped = 0;
+
+        PlacedPart placed = AttachPart(snapshot.family, socket, snapshot.flip, snapshot.handSwapped);
+        if (placed == null)
+        {
+            dropped = CountParts(snapshot);
+            return null;
+        }
+
+        // Several sockets on a part can share a name, so each one is claimed as it is filled and the
+        // next child of that name goes to the following one.
+        var claimed = new HashSet<HardPoint>();
+
+        foreach (PlacementSnapshot child in snapshot.children)
+        {
+            HardPoint target = FindSocketByName(placed, child.socketName, claimed);
+            if (target == null)
+            {
+                dropped += CountParts(child);
+                continue;
+            }
+
+            claimed.Add(target);
+            RestoreSubtree(child, target, out int lost);
+            dropped += lost;
+        }
+
+        return placed;
+    }
+
+    static HardPoint FindSocketByName(PlacedPart part, string socketName, HashSet<HardPoint> claimed)
+    {
+        foreach (HardPoint socket in part.hardPoints)
+        {
+            if (socket == null || socket.IsOccupied) continue;
+            if (claimed.Contains(socket)) continue;
+            if (socket.name != socketName) continue;
+
+            return socket;
+        }
+        return null;
+    }
+
+    static int CountParts(PlacementSnapshot snapshot)
+    {
+        int count = 1;
+        foreach (PlacementSnapshot child in snapshot.children) count += CountParts(child);
+        return count;
+    }
+
+    // Takes a part off the ship, along with everything hanging from it. The core is not removable
+    // here: it is the thing the rest is built on, and swapping it goes through the Core tab.
     public void RemoveModule(PlacedPart part)
     {
         if (part == null || part == Core) return;
@@ -350,13 +741,24 @@ public class ShipBuilder2 : MonoBehaviour
             if (socket.occupant != null) RemovePart(socket.occupant);
 
             if (hoveredSocket == socket) hoveredSocket = null;
+            if (pressedPlaceholder == socket) pressedPlaceholder = null;
+            blockedSockets.Remove(socket);
             sockets.Remove(socket);
         }
 
-        if (part.attachedTo != null) part.attachedTo.occupant = null;
+        if (part.attachedTo != null)
+        {
+            part.attachedTo.occupant = null;
+            part.attachedTo.SetPlaceholdersVisible(showSocketPlaceholders);
+        }
+
         if (part == Core) Core = null;
         if (SelectedPart == part) SelectedPart = null;
 
+        // Out of the hierarchy and switched off before the deferred Destroy lands, so the overlap
+        // pass that runs immediately after this is not still measuring against a part that is gone.
+        part.transform.SetParent(null, false);
+        part.gameObject.SetActive(false);
         Destroy(part.gameObject);
     }
 
@@ -365,25 +767,181 @@ public class ShipBuilder2 : MonoBehaviour
         var placed = instance.AddComponent<PlacedPart>();
         placed.definition = definition;
         placed.attachedTo = attachedTo;
+
+        ScanForSockets(instance.transform, placed);
+
+        // After the scan, so the blockouts sitting in this part's own sockets are already tagged and
+        // stay out of its renderer list.
         placed.CaptureRenderers();
 
-        foreach (Transform child in instance.GetComponentsInChildren<Transform>(true))
+        // Measured once here rather than per query: the sockets do not move relative to the part
+        // they belong to, however the ship is turned.
+        float deadZone = CentrelineDeadZone(placed);
+
+        foreach (HardPoint socket in placed.hardPoints)
         {
-            if (child == instance.transform) continue;
-            if (!PartNaming.TryParseHardPoint(child.name, out string category, out PartSide side, out string suffix)) continue;
+            socket.geometricSide = MeasureGeometricSide(socket, deadZone);
+            socket.marker = CreateMarker(socket);
+            socket.SetPlaceholdersVisible(showSocketPlaceholders);
+        }
+
+        return placed;
+    }
+
+    // ---------------------------------------------------------------- orientation
+
+    // How a part sits in a socket: the automatic correction for a mount that faces the wrong way,
+    // with whatever half turn the player has since asked for on top.
+    //
+    // Nothing here touches the socket, let alone the prefab it came from. The sockets stay exactly
+    // as the artist left them - the blockout standing in an empty one still shows the mount's own
+    // orientation - and the correction lives on the part that gets bolted in.
+    Quaternion PlacementRotation(HardPoint socket, string category, PartFlip flip)
+    {
+        return AutoOrientRotation(socket, category) * PartFlips.ToRotation(flip);
+    }
+
+    // Straightens a part whose mount faces against the hull.
+    //
+    // The engines, like the cores, are all modelled pointing down Z, so a socket whose own forward
+    // runs the other way seats one facing backwards. Nothing in the part or in the socket's name
+    // says so - the only evidence is the direction the mount points, which is what this reads.
+    //
+    // A half turn about the socket's up axis is the correction: a half turn negates everything
+    // perpendicular to its axis, so forward reverses exactly whatever the mount's orientation
+    // happens to be, and up is left where it was.
+    Quaternion AutoOrientRotation(HardPoint socket, string category)
+    {
+        return NeedsAutoOrient(socket, category) ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;
+    }
+
+    public bool NeedsAutoOrient(HardPoint socket, string category)
+    {
+        if (socket == null || AssemblyRoot == null) return false;
+        if (!ShouldAutoOrient(category)) return false;
+
+        // Both directions are read in world space and turn together when the player spins the model,
+        // so the comparison is about the ship rather than about the camera.
+        return Vector3.Dot(socket.transform.forward, AssemblyRoot.forward) < -autoOrientThreshold;
+    }
+
+    bool ShouldAutoOrient(string category)
+    {
+        if (autoOrientCategories == null || string.IsNullOrEmpty(category)) return false;
+
+        foreach (string wanted in autoOrientCategories)
+        {
+            if (PartNaming.NormalizeCategory(wanted) == category) return true;
+        }
+        return false;
+    }
+
+    // Which flank a socket sits on, measured against the ship's centreline. Left is negative X
+    // throughout this library: every mirrored pair in it puts "_L" at a negative offset and "_R" at
+    // the matching positive one, and the mounts that are genuinely central sit at exactly zero.
+    //
+    // The measurement is in the assembly's frame rather than the owning part's, because that is the
+    // frame the answer is about. It also survives the player spinning the model, which turns the
+    // assembly itself and so leaves everything under it where it was, and it stays true when a part
+    // is flipped - a half turn really does swing its sockets across to the other flank.
+    PartSide MeasureGeometricSide(HardPoint socket, float deadZone)
+    {
+        if (AssemblyRoot == null) return PartSide.None;
+
+        float x = AssemblyRoot.InverseTransformPoint(socket.transform.position).x;
+
+        if (x < -deadZone) return PartSide.Left;
+        if (x > deadZone) return PartSide.Right;
+        return PartSide.None;
+    }
+
+    // How far off the centreline a socket has to sit before it counts as being on one side.
+    //
+    // Scaled to the part rather than fixed, so it means the same thing on a capital hull and on a
+    // fin: a socket that is meant to be central but landed a hair off zero stays central, while the
+    // real shoulder mounts - out at a third of the half width or more - are never in doubt.
+    float CentrelineDeadZone(PlacedPart part)
+    {
+        if (AssemblyRoot == null) return 0f;
+
+        float halfWidth = 0f;
+
+        foreach (Renderer renderer in part.renderers)
+        {
+            if (renderer == null) continue;
+
+            Bounds bounds = renderer.bounds;
+            Vector3 extents = bounds.extents;
+
+            // The corners have to be walked because the assembly's frame is not axis aligned with
+            // the world once the ship has been turned.
+            for (int corner = 0; corner < 8; corner++)
+            {
+                var offset = new Vector3(
+                    (corner & 1) == 0 ? -extents.x : extents.x,
+                    (corner & 2) == 0 ? -extents.y : extents.y,
+                    (corner & 4) == 0 ? -extents.z : extents.z);
+
+                float x = AssemblyRoot.InverseTransformPoint(bounds.center + offset).x;
+                halfWidth = Mathf.Max(halfWidth, Mathf.Abs(x));
+            }
+        }
+
+        return halfWidth * 0.05f;
+    }
+
+    // Re-reads the flank of every socket at or below a part. Needed after a half turn, which moves
+    // that part's sockets across the hull without any of them changing name.
+    void RefreshGeometricSides(PlacedPart part)
+    {
+        if (part == null) return;
+
+        float deadZone = CentrelineDeadZone(part);
+
+        foreach (HardPoint socket in part.hardPoints)
+        {
+            if (socket == null) continue;
+
+            socket.geometricSide = MeasureGeometricSide(socket, deadZone);
+            if (socket.occupant != null) RefreshGeometricSides(socket.occupant);
+        }
+    }
+
+    // Walks a freshly spawned part looking for its sockets.
+    //
+    // Recursive rather than a flat GetComponentsInChildren because the walk has to stop at each
+    // hard point: everything below one is the blockout model parked there, and that model declares
+    // hard points of its own. Registering those would offer the player sockets on a part that does
+    // not exist yet.
+    void ScanForSockets(Transform node, PlacedPart placed)
+    {
+        foreach (Transform child in node)
+        {
+            if (!PartNaming.TryParseHardPoint(child.name, out string category, out PartSide side, out string suffix))
+            {
+                ScanForSockets(child, placed);
+                continue;
+            }
 
             var socket = child.gameObject.AddComponent<HardPoint>();
             socket.category = category;
             socket.side = side;
             socket.suffix = suffix;
             socket.owner = placed;
-            socket.marker = CreateMarker(socket);
+
+            // Whatever the prefab already had inside the socket is blockout. Captured now, before
+            // any marker or real part is parented here, so only the artist's models are tagged.
+            foreach (Transform blockout in child)
+            {
+                var placeholder = blockout.gameObject.AddComponent<SocketPlaceholder>();
+                placeholder.Capture(socket);
+                placeholder.ApplyMaterial(placeholderMaterial);
+                socket.placeholders.Add(placeholder);
+            }
 
             placed.hardPoints.Add(socket);
             sockets.Add(socket);
         }
-
-        return placed;
     }
 
     HardPointMarker CreateMarker(HardPoint socket)
@@ -399,7 +957,7 @@ public class ShipBuilder2 : MonoBehaviour
 
         markerObject.AddComponent<SphereCollider>().isTrigger = true;
 
-        // Sockets are scaled to the module they expect, so undo that to keep every marker the same
+        // Sockets are scaled to the part they expect, so undo that to keep every marker the same
         // physical size no matter how deep in the hierarchy it sits.
         Vector3 parentScale = socket.transform.lossyScale;
         float compensation = Mathf.Max(0.0001f, (Mathf.Abs(parentScale.x) + Mathf.Abs(parentScale.y) + Mathf.Abs(parentScale.z)) / 3f);
@@ -410,55 +968,275 @@ public class ShipBuilder2 : MonoBehaviour
         return marker;
     }
 
+    // ---------------------------------------------------------------- random ships
+
+    public void GenerateRandomShip()
+    {
+        GenerateRandomShip(randomDepth);
+    }
+
+    // Builds a whole ship without the player: a random hull, then depth rounds of filling whatever
+    // sockets the last round opened up.
+    //
+    // Every placement goes through the same overlap test the interactive builder uses, so a
+    // generated ship never has two parts sharing the same space - a socket whose candidates all
+    // clash is simply left empty, which is also what happens to categories with no prefabs yet.
+    public void GenerateRandomShip(int depth)
+    {
+        List<ShipPartFamily> cores = FamiliesInCategory(CoreCategory);
+        if (cores.Count == 0)
+        {
+            Debug.LogError("[Ship Builder 2] Cannot generate a ship: the catalog has no cores.", this);
+            return;
+        }
+
+        var random = new System.Random();
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+
+        randomFamilies.Clear();
+        PlaceCore(cores[random.Next(cores.Count)]);
+        if (Core == null) return;
+
+        var frontier = new List<PlacedPart> { Core };
+        var next = new List<PlacedPart>();
+        int placedCount = 0;
+
+        for (int level = 0; level < Mathf.Max(1, depth) && frontier.Count > 0; level++)
+        {
+            next.Clear();
+
+            foreach (PlacedPart parent in frontier)
+            {
+                if (parent == null) continue;
+
+                // Indexed rather than foreach: a part placed in this loop adds its own sockets to
+                // the shared list, and those belong to the next round, not this one.
+                int socketCount = parent.hardPoints.Count;
+                for (int i = 0; i < socketCount; i++)
+                {
+                    if (placedCount >= maxRandomParts) break;
+
+                    HardPoint socket = parent.hardPoints[i];
+                    if (socket == null || socket.IsOccupied) continue;
+
+                    ShipPartFamily chosen = ChooseRandomPart(socket, random);
+                    if (chosen == null) continue;
+
+                    PlacedPart placed = AttachPart(chosen, socket);
+                    if (placed == null) continue;
+
+                    next.Add(placed);
+                    placedCount++;
+                }
+            }
+
+            frontier.Clear();
+            frontier.AddRange(next);
+        }
+
+        RefreshPlacementOptions();
+        FrameWholeShip(true);
+        AssemblyChanged?.Invoke();
+
+        Debug.Log($"[Ship Builder 2] Generated {Core.definition.displayName} with {placedCount} parts " +
+                  $"at depth {depth} in {timer.ElapsedMilliseconds} ms.", this);
+    }
+
+    // Picks a model that fits a socket and does not bury itself in what is already there, or
+    // nothing if the category has no prefabs or every try clashed.
+    ShipPartFamily ChooseRandomPart(HardPoint socket, System.Random random)
+    {
+        List<ShipPartFamily> available = FamiliesInCategory(socket.category);
+        if (available.Count == 0) return null;
+
+        PartSide socketSide = socket.EffectiveSide;
+
+        randomCandidates.Clear();
+        foreach (ShipPartFamily family in available)
+        {
+            if (family.Fits(socketSide)) randomCandidates.Add(family);
+        }
+        if (randomCandidates.Count == 0) return null;
+
+        Shuffle(randomCandidates, random);
+
+        // A socket and its mirror image differ only by the side in their names, so remembering what
+        // went into one and putting the same model into the other is what makes generated ships
+        // symmetrical. The remembered model is moved to the front rather than forced, so one that
+        // would clash on this side still gives way to something that fits.
+        (PlacedPart, string, string) mirrorKey = MirrorKey(socket);
+        if (mirrorRandomShip && randomFamilies.TryGetValue(mirrorKey, out ShipPartFamily twin))
+        {
+            int found = randomCandidates.IndexOf(twin);
+            if (found > 0)
+            {
+                randomCandidates.RemoveAt(found);
+                randomCandidates.Insert(0, twin);
+            }
+        }
+
+        // Gathered once for the socket rather than once per try: the ship does not change until
+        // something is actually placed.
+        GatherShipColliders();
+
+        int tries = Mathf.Min(randomCandidates.Count, Mathf.Max(1, randomCandidateTries));
+        for (int i = 0; i < tries; i++)
+        {
+            ShipPartFamily candidate = randomCandidates[i];
+            ShipPartDefinition variant = candidate.VariantFor(socketSide);
+            if (variant == null) continue;
+
+            if (MeasureCandidateOverlap(variant, socket, randomOverlapSampleCount) >= overlapWarningThreshold) continue;
+
+            if (mirrorRandomShip) randomFamilies[mirrorKey] = candidate;
+            return candidate;
+        }
+
+        return null;
+    }
+
+    // Identifies a socket independently of which side it is on, so "WingHardPoint_L" and
+    // "WingHardPoint_R" on the same part share an entry.
+    static (PlacedPart, string, string) MirrorKey(HardPoint socket)
+    {
+        return (socket.owner, socket.category, PartNaming.SuffixWithoutSide(socket.suffix));
+    }
+
+    static void Shuffle(List<ShipPartFamily> list, System.Random random)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = random.Next(i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
+    }
+
     // ---------------------------------------------------------------- markers
 
-    // Works out where the module in hand could actually go, then redraws the markers to match.
-    // Called when the module changes and whenever the ship gains or loses a part, which is exactly
+    // Works out where the part in hand could actually go, then redraws the markers to match.
+    // Called when the part changes and whenever the ship gains or loses a part, which is exactly
     // when the answer can change - it does not depend on where the camera is or how the ship is
     // turned, so spinning the model costs nothing.
     void RefreshPlacementOptions()
     {
         EvaluateBlockedSockets();
         RefreshAllMarkers();
+        RefreshPlaceholders();
     }
 
-    // Tries the held module against every free socket of its category and records the ones where it
-    // would clash. A single probe instance is moved from socket to socket rather than one being
-    // spawned per socket, so a pass costs one Instantiate no matter how many candidates there are.
+    void RefreshPlaceholders()
+    {
+        foreach (HardPoint socket in sockets)
+        {
+            if (socket == null) continue;
+            socket.SetPlaceholdersVisible(showSocketPlaceholders && !socket.IsOccupied);
+        }
+    }
+
+    // Tries the model in hand against every free socket of its category and records the ones where
+    // it would clash.
+    //
+    // A single probe is moved from socket to socket rather than one being spawned per socket. The
+    // model can resolve to a different prefab on either side of the hull, so the sockets are worked
+    // through one variant at a time: two Instantiates for a mirrored wing, one for anything else,
+    // no matter how many sockets there are.
     void EvaluateBlockedSockets()
     {
         blockedSockets.Clear();
-        if (HeldModule == null || AssemblyRoot == null) return;
+        if (HeldPart == null || AssemblyRoot == null) return;
 
         GatherShipColliders();
         if (shipColliders.Count == 0) return;
 
-        GameObject probe = Instantiate(HeldModule.prefab);
+        probeVariants.Clear();
+        foreach (HardPoint socket in sockets)
+        {
+            if (!IsCandidateSocket(socket)) continue;
+
+            ShipPartDefinition variant = HeldPart.VariantFor(socket.EffectiveSide);
+            if (variant != null && !probeVariants.Contains(variant)) probeVariants.Add(variant);
+        }
+
+        foreach (ShipPartDefinition variant in probeVariants)
+        {
+            GameObject probe = CreateProbe(variant);
+
+            foreach (HardPoint socket in sockets)
+            {
+                if (!IsCandidateSocket(socket)) continue;
+                if (HeldPart.VariantFor(socket.EffectiveSide) != variant) continue;
+
+                probe.transform.SetParent(socket.transform, false);
+                probe.transform.localPosition = Vector3.zero;
+                probe.transform.localRotation = PlacementRotation(socket, variant.category, PartFlip.None);
+                probe.transform.localScale = Vector3.one;
+
+                float overlap = MeasureOverlapFraction(probe, ignoreOverlapWithParent ? socket.owner : null, overlapSampleCount);
+                if (overlap >= overlapWarningThreshold) blockedSockets.Add(socket);
+            }
+
+            DestroyProbe(probe);
+        }
+    }
+
+    // A free socket of the right category. Deliberately not Accepts, which also consults the very
+    // set this pass is building.
+    bool IsCandidateSocket(HardPoint socket)
+    {
+        return socket != null && !socket.IsOccupied && HeldPart != null && socket.category == HeldPart.category;
+    }
+
+    // One candidate against one socket. Used by the random builder, which asks about a different
+    // prefab every time and so cannot reuse a single probe the way the pass above does.
+    float MeasureCandidateOverlap(ShipPartDefinition definition, HardPoint socket, int samples)
+    {
+        if (shipColliders.Count == 0) return 0f;
+
+        GameObject probe = CreateProbe(definition);
+        probe.transform.SetParent(socket.transform, false);
+        probe.transform.localPosition = Vector3.zero;
+        probe.transform.localRotation = PlacementRotation(socket, definition.category, PartFlip.None);
+        probe.transform.localScale = Vector3.one;
+
+        float overlap = MeasureOverlapFraction(probe, ignoreOverlapWithParent ? socket.owner : null, samples);
+
+        DestroyProbe(probe);
+        return overlap;
+    }
+
+    // An invisible stand-in for a part, used to ask "would this fit here" without committing to it.
+    GameObject CreateProbe(ShipPartDefinition definition)
+    {
+        GameObject probe = Instantiate(definition.prefab);
         probe.name = "PlacementProbe";
         probe.hideFlags = HideFlags.HideInHierarchy;
 
+        // The blockouts inside the probe's own sockets are not part of it. Left in, they would be
+        // measured as its volume and report a clash against structure the real part never touches.
+        SocketPlaceholder.SuppressAllIn(probe);
+
         // Invisible, and triggers so it never shows up in picking, hovering or the occlusion sweep.
         foreach (Renderer renderer in probe.GetComponentsInChildren<Renderer>(true)) renderer.enabled = false;
-        foreach (Collider collider in probe.GetComponentsInChildren<Collider>(true)) collider.isTrigger = true;
-
-        foreach (HardPoint socket in sockets)
+        foreach (Collider collider in probe.GetComponentsInChildren<Collider>(true))
         {
-            if (socket == null || socket.IsOccupied) continue;
-            if (socket.category != HeldModule.category) continue;
-
-            probe.transform.SetParent(socket.transform, false);
-            probe.transform.localPosition = Vector3.zero;
-            probe.transform.localRotation = Quaternion.identity;
-            probe.transform.localScale = Vector3.one;
-
-            float overlap = MeasureOverlapFraction(probe, ignoreOverlapWithParent ? socket.owner : null);
-            if (overlap >= overlapWarningThreshold) blockedSockets.Add(socket);
+            if (collider.enabled) collider.isTrigger = true;
         }
 
+        return probe;
+    }
+
+    void DestroyProbe(GameObject probe)
+    {
+        if (probe == null) return;
+
+        // Deactivated first: Destroy lands at the end of the frame, and the measurements that follow
+        // in this same frame must not find the probe still parented into the ship.
+        probe.transform.SetParent(null, false);
+        probe.SetActive(false);
         Destroy(probe);
     }
 
-    // Every solid collider belonging to a placed module. Gathered once per pass so moving the probe
+    // Every solid collider belonging to a placed part. Gathered once per pass so moving the probe
     // between sockets does not re-walk the hierarchy each time.
     void GatherShipColliders()
     {
@@ -467,6 +1245,13 @@ public class ShipBuilder2 : MonoBehaviour
 
         foreach (Collider collider in AssemblyRoot.GetComponentsInChildren<Collider>())
         {
+            // The blockouts keep their colliders, switched off. They have to be dropped explicitly:
+            // GetComponentsInChildren filters on the object being active, not on the component being
+            // enabled, and a disabled collider is worse than useless here - ClosestPoint hands back
+            // the point it was given, which this class reads as "inside", so every sample would
+            // count as buried and nothing would ever be placeable.
+            if (!collider.enabled) continue;
+
             // Triggers here are socket markers, the preview and the probe.
             if (collider.isTrigger) continue;
             if (collider.GetComponentInParent<PlacedPart>() == null) continue;
@@ -559,20 +1344,34 @@ public class ShipBuilder2 : MonoBehaviour
         RefreshMarker(hoveredSocket);
 
         ClearGhost();
-        if (socket == null || HeldModule == null) return;
+        if (socket == null || HeldPart == null) return;
 
-        ghost = Instantiate(HeldModule.prefab, socket.transform);
-        ghost.name = "ModulePreview";
+        // The same resolution the placement will use, so the hologram is the part that would
+        // actually be bolted on rather than a stand-in for its mirror image.
+        ShipPartDefinition variant = HeldPart.VariantFor(socket.EffectiveSide);
+        if (variant == null) return;
+
+        ghost = Instantiate(variant.prefab, socket.transform);
+        ghost.name = "PartPreview";
         ghost.transform.localPosition = Vector3.zero;
-        ghost.transform.localRotation = Quaternion.identity;
+
+        // The same correction the placement will apply, so the hologram is not showing a facing the
+        // part will not end up in.
+        ghost.transform.localRotation = PlacementRotation(socket, variant.category, PartFlip.None);
         ghost.transform.localScale = Vector3.one;
+
+        // The preview shows the part, not the blockouts waiting inside its own empty sockets.
+        SocketPlaceholder.SuppressAllIn(ghost);
 
         // Left enabled but turned into triggers: the overlap measurement needs to query their
         // shapes, while every raycast in this class either ignores triggers or looks for something
         // the preview does not have.
-        foreach (Collider collider in ghost.GetComponentsInChildren<Collider>(true)) collider.isTrigger = true;
+        foreach (Collider collider in ghost.GetComponentsInChildren<Collider>(true))
+        {
+            if (collider.enabled) collider.isTrigger = true;
+        }
 
-        // Already known from the pass that ran when the module was picked up, so hovering costs
+        // Already known from the pass that ran when the part was picked up, so hovering costs
         // nothing. With hideBlockedSockets on this is always false, because a blocked socket has no
         // marker to hover in the first place.
         SetPreviewBlocked(blockedSockets.Contains(socket));
@@ -580,28 +1379,39 @@ public class ShipBuilder2 : MonoBehaviour
         Material material = PreviewBlocked ? ghostBlockedMaterial : ghostMaterial;
         foreach (Renderer renderer in ghost.GetComponentsInChildren<Renderer>(true))
         {
+            if (!renderer.enabled) continue;
+
             var ghostMaterials = new Material[renderer.sharedMaterials.Length];
             for (int i = 0; i < ghostMaterials.Length; i++) ghostMaterials[i] = material;
             renderer.sharedMaterials = ghostMaterials;
         }
     }
 
-    // How much of the module would end up buried inside structure that is already there, as a
+    // How much of the part would end up buried inside structure that is already there, as a
     // fraction of its own volume.
     //
-    // Measured by scattering points through the module's own colliders and asking how many of them
+    // Measured by scattering points through the part's own colliders and asking how many of them
     // land inside somebody else's. Sampling the real collider shapes rather than their bounding
     // boxes matters here: a wing is mostly empty space inside its own box, and judging by boxes
-    // would call every wing a clash. All the module colliders are boxes, capsules and spheres, so
+    // would call every wing a clash. All the part colliders are boxes, capsules and spheres, so
     // Collider.ClosestPoint answers "is this point inside" exactly.
-    float MeasureOverlapFraction(GameObject candidate, PlacedPart ignore)
+    float MeasureOverlapFraction(GameObject candidate, PlacedPart ignore, int sampleBudget)
     {
-        Collider[] candidateColliders = candidate.GetComponentsInChildren<Collider>();
-        if (candidateColliders.Length == 0 || AssemblyRoot == null) return 0f;
+        Collider[] all = candidate.GetComponentsInChildren<Collider>();
+        if (all.Length == 0 || AssemblyRoot == null) return 0f;
+
+        // Disabled colliders belong to the blockouts inside the candidate's own sockets, which are
+        // not part of its volume.
+        var candidateColliders = new List<Collider>(all.Length);
+        foreach (Collider collider in all)
+        {
+            if (collider.enabled) candidateColliders.Add(collider);
+        }
+        if (candidateColliders.Count == 0) return 0f;
 
         // Both Collider.bounds and Collider.ClosestPoint read the physics engine's copy of the
         // world, not the transforms. Unity only refreshes that copy before a simulation step, so
-        // the preview - parented and positioned microseconds ago - and any module placed since the
+        // the preview - parented and positioned microseconds ago - and any part placed since the
         // last FixedUpdate are still sitting whereever their prefab put them as far as physics is
         // concerned. Without this the preview measures itself against the wrong pose and quietly
         // finds nothing to hit.
@@ -627,7 +1437,7 @@ public class ShipBuilder2 : MonoBehaviour
         // Fixed seed so hovering the same socket twice gives the same answer instead of flickering
         // around the threshold.
         var random = new System.Random(9871);
-        int perCollider = Mathf.Max(8, overlapSampleCount / candidateColliders.Length);
+        int perCollider = Mathf.Max(8, sampleBudget / candidateColliders.Count);
         int sampled = 0;
         int buried = 0;
 
@@ -669,7 +1479,7 @@ public class ShipBuilder2 : MonoBehaviour
 
         if (sampled == 0 && !warnedAboutSampling)
         {
-            // Reaching here means no point could be placed inside the module's own colliders, so
+            // Reaching here means no point could be placed inside the part's own colliders, so
             // the fraction below is meaningless rather than merely zero. Worth saying out loud:
             // silently reporting "no overlap" is how a broken measurement hides.
             warnedAboutSampling = true;
@@ -713,7 +1523,7 @@ public class ShipBuilder2 : MonoBehaviour
                 return mesh.sharedMesh.bounds;
 
             default:
-                // Nothing else is expected on these modules; fall back to something that at least
+                // Nothing else is expected on these parts; fall back to something that at least
                 // covers the collider, undoing the transform scale so it stays a local measurement.
                 Vector3 scale = collider.transform.lossyScale;
                 Vector3 worldSize = collider.bounds.size;
@@ -751,11 +1561,15 @@ public class ShipBuilder2 : MonoBehaviour
         if (builderCamera == null || AssemblyRoot == null) return;
 
         framingWholeShip = true;
-        builderCamera.Frame(AssemblyRoot, Vector3.zero, ComputeAssemblyRadius(), resetZoom);
+
+        float radius = ComputeAssemblyRadius();
+        if (radius <= 0f) return;
+
+        builderCamera.Frame(AssemblyRoot, Vector3.zero, radius, resetZoom);
     }
 
-    // After the ship gains or loses a module: widen the shot if it was showing the whole ship, and
-    // recover if the camera was zoomed in on the very module that just went away.
+    // After the ship gains or loses a part: widen the shot if it was showing the whole ship, and
+    // recover if the camera was zoomed in on the very part that just went away.
     void ReframeAfterChange()
     {
         if (builderCamera == null) return;
@@ -770,7 +1584,7 @@ public class ShipBuilder2 : MonoBehaviour
         Bounds bounds = default;
         bool measured = false;
 
-        // Only this module's own meshes: focusing a wing should not frame the guns hanging off it.
+        // Only this part's own meshes: focusing a wing should not frame the guns hanging off it.
         foreach (Renderer renderer in part.renderers)
         {
             if (renderer == null) continue;
@@ -793,7 +1607,7 @@ public class ShipBuilder2 : MonoBehaviour
                             Mathf.Max(0.05f, bounds.extents.magnitude), true);
     }
 
-    // Radius of a sphere around the stand containing every placed module. Measured from the stand
+    // Radius of a sphere around the stand containing every placed part. Measured from the stand
     // rather than from the bounds centre so that spinning the ship does not change the answer.
     float ComputeAssemblyRadius()
     {
@@ -804,6 +1618,10 @@ public class ShipBuilder2 : MonoBehaviour
         {
             if (renderer == null || !renderer.enabled) continue;
             if (renderer.GetComponentInParent<HardPointMarker>() != null) continue;
+
+            // Blockouts are a hint, not the ship. Framing on them would make the shot jump every
+            // time one is replaced by the real part, which is usually a different size.
+            if (renderer.GetComponentInParent<SocketPlaceholder>() != null) continue;
 
             Bounds bounds = renderer.bounds;
             Vector3 extents = bounds.extents;
@@ -835,6 +1653,19 @@ public class ShipBuilder2 : MonoBehaviour
         }
     }
 
+    public int FreeSocketCount
+    {
+        get
+        {
+            int count = 0;
+            foreach (HardPoint socket in sockets)
+            {
+                if (socket != null && !socket.IsOccupied) count++;
+            }
+            return count;
+        }
+    }
+
     public float TotalMass
     {
         get
@@ -860,7 +1691,7 @@ public class ShipBuilder2 : MonoBehaviour
         Vector2 screenPosition = mouse.position.ReadValue();
 
         // Everything below queries physics, and physics only refreshes its copy of the transforms
-        // before a simulation step. Dragging the ship round moves every collider on it, and a module
+        // before a simulation step. Dragging the ship round moves every collider on it, and a part
         // placed this frame is not there yet at all, so bring physics up to date first - otherwise
         // hovering, picking and occlusion all work against where things used to be.
         Physics.SyncTransforms();
@@ -880,16 +1711,21 @@ public class ShipBuilder2 : MonoBehaviour
 
         if (mouse.leftButton.wasReleasedThisFrame)
         {
-            if (!dragging && pressedPart != null) SelectPart(pressedPart);
+            if (!dragging)
+            {
+                if (pressedPart != null) SelectPart(pressedPart);
+                else if (pressedPlaceholder != null) RequestCategoryFor(pressedPlaceholder);
+            }
 
             dragging = false;
             pressStartedOnModel = false;
             pressedPart = null;
+            pressedPlaceholder = null;
             pressTravel = Vector2.zero;
         }
 
-        // Right click takes a module off the ship. Aimed at nothing in particular it puts the held
-        // module back down instead, or pulls the camera out to the whole ship.
+        // Right click takes a part off the ship. Aimed at nothing in particular it puts the held
+        // part back down instead, or pulls the camera out to the whole ship.
         if (mouse.rightButton.wasPressedThisFrame && !overUI)
         {
             PlacedPart target = PickPart(view, screenPosition);
@@ -898,9 +1734,9 @@ public class ShipBuilder2 : MonoBehaviour
             {
                 RemoveModule(target);
             }
-            else if (HeldModule != null)
+            else if (HeldPart != null)
             {
-                DropHeldModule();
+                DropHeldPart();
             }
             else
             {
@@ -915,6 +1751,23 @@ public class ShipBuilder2 : MonoBehaviour
             float scroll = mouse.scroll.ReadValue().y;
             if (Mathf.Abs(scroll) > 0.01f && builderCamera != null) builderCamera.Zoom(scroll);
         }
+
+        UpdateReorientShortcuts();
+    }
+
+    // Straightening a mount is fiddly work - turn it, look, turn it again - so it is on the keyboard
+    // as well as on the buttons, and stays under the hand that is already spinning the model.
+    void UpdateReorientShortcuts()
+    {
+        if (SelectedPart == null) return;
+
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard == null) return;
+
+        if (keyboard.fKey.wasPressedThisFrame) FlipSelectedPart(PartFlip.Turn);
+        else if (keyboard.tKey.wasPressedThisFrame) FlipSelectedPart(PartFlip.Tilt);
+        else if (keyboard.rKey.wasPressedThisFrame) FlipSelectedPart(PartFlip.Roll);
+        else if (keyboard.mKey.wasPressedThisFrame) MirrorSelectedPart();
     }
 
     void LateUpdate()
@@ -925,11 +1778,11 @@ public class ShipBuilder2 : MonoBehaviour
         UpdateMarkerOcclusion();
     }
 
-    // While a module is in hand, the socket under the pointer previews it. Dragging the ship around
+    // While a part is in hand, the socket under the pointer previews it. Dragging the ship around
     // suppresses the preview, so a rotate does not flicker ghosts across every socket it passes.
     void UpdateHover(Camera view, Vector2 screenPosition, bool overUI)
     {
-        if (HeldModule == null || overUI || dragging)
+        if (HeldPart == null || overUI || dragging)
         {
             SetHoveredSocket(null);
             return;
@@ -961,20 +1814,64 @@ public class ShipBuilder2 : MonoBehaviour
         dragging = false;
         pressStartedOnModel = false;
         pressedPart = null;
+        pressedPlaceholder = null;
 
-        // A socket lit up for the module in hand takes the click and gets the module.
+        // A socket lit up for the model in hand takes the click and gets the part.
         if (hoveredSocket != null)
         {
             PlaceOn(hoveredSocket);
             return;
         }
 
+        // Solid structure first: a blockout only answers where there is nothing real in front of it.
         pressedPart = PickPart(view, screenPosition);
-        pressStartedOnModel = pressedPart != null;
+        if (pressedPart == null) pressedPlaceholder = PickPlaceholder(view, screenPosition);
+
+        // Either one counts as having grabbed the model, so a drag that starts on a hologram spins
+        // the ship instead of doing nothing.
+        pressStartedOnModel = pressedPart != null || pressedPlaceholder != null;
     }
 
-    // Nearest placed module under the pointer. Triggers are ignored, which excludes both the socket
-    // markers and the preview - only the solid ship answers.
+    // Nearest empty socket's blockout under the pointer. Blockouts are triggers, so this is the only
+    // query in the class that goes looking for them - everything else steps straight past.
+    HardPoint PickPlaceholder(Camera view, Vector2 screenPosition)
+    {
+        RaycastHit[] hits = Physics.RaycastAll(view.ScreenPointToRay(screenPosition), 5000f, ~0, QueryTriggerInteraction.Collide);
+
+        float nearest = float.MaxValue;
+        HardPoint best = null;
+
+        foreach (RaycastHit hit in hits)
+        {
+            if (hit.distance >= nearest) continue;
+
+            var placeholder = hit.collider.GetComponentInParent<SocketPlaceholder>();
+            if (placeholder == null || placeholder.socket == null || placeholder.socket.IsOccupied) continue;
+
+            nearest = hit.distance;
+            best = placeholder.socket;
+        }
+
+        return best;
+    }
+
+    // Clicking the hologram in an empty socket is the player pointing at a gap and asking what goes
+    // in it, so the answer is to open that category in the list. Anything already in hand of a
+    // different category is put down first - having asked for tails, holding a wing is just a trap
+    // waiting to place the wrong part on the next click.
+    void RequestCategoryFor(HardPoint socket)
+    {
+        if (socket == null || string.IsNullOrEmpty(socket.category)) return;
+
+        if (HeldPart != null && HeldPart.category != socket.category) DropHeldPart();
+
+        SelectedPart = null;
+        CategoryRequested?.Invoke(socket.category);
+    }
+
+    // Nearest placed part under the pointer. Triggers are ignored, which excludes both the socket
+    // markers and the preview - only the solid ship answers. The blockouts have no live colliders
+    // at all, so a click passes straight through them.
     PlacedPart PickPart(Camera view, Vector2 screenPosition)
     {
         RaycastHit[] hits = Physics.RaycastAll(view.ScreenPointToRay(screenPosition), 5000f, ~0, QueryTriggerInteraction.Ignore);
@@ -996,7 +1893,7 @@ public class ShipBuilder2 : MonoBehaviour
         return best;
     }
 
-    // Clicking a module with empty hands zooms in on it and marks it as the one a Remove would take.
+    // Clicking a part with empty hands zooms in on it and marks it as the one a Remove would take.
     void SelectPart(PlacedPart part)
     {
         SelectedPart = part == Core ? null : part;

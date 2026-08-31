@@ -2,9 +2,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-// One module in the right hand list: a rendered thumbnail plus its name. Clicking picks the module
-// up; the sockets that can take it then light up on the ship, and the entry stays highlighted for
-// as long as it is in hand.
+// One model in the part list: a rendered thumbnail plus its name. Clicking picks the model up; the
+// sockets that can take it then light up on the ship, and the entry stays highlighted for as long
+// as it is in hand.
+//
+// One cell per model, not per prefab. A mirrored wing is a single entry here and the side is settled
+// by whichever socket it is dropped onto, so the list never asks the player to pick a hand.
 public class ModuleListItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public Image background;
@@ -12,7 +15,7 @@ public class ModuleListItem : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     public Text label;
 
     ShipBuilder2 builder;
-    ShipPartDefinition definition;
+    ShipPartFamily family;
 
     Color normalColor;
     Color hoverColor;
@@ -20,17 +23,17 @@ public class ModuleListItem : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     bool isHeld;
     bool isHovered;
 
-    public ShipPartDefinition Definition => definition;
+    public ShipPartFamily Family => family;
 
-    public void Bind(ShipBuilder2 owner, ShipPartDefinition module, Color normal, Color hover, Color held)
+    public void Bind(ShipBuilder2 owner, ShipPartFamily model, Color normal, Color hover, Color held)
     {
         builder = owner;
-        definition = module;
+        family = model;
         normalColor = normal;
         hoverColor = hover;
         heldColor = held;
 
-        if (label != null) label.text = module.displayName;
+        if (label != null) label.text = model.displayName;
         ApplyColor();
     }
 
@@ -54,7 +57,7 @@ public class ModuleListItem : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     public void OnClicked()
     {
-        if (builder != null) builder.HoldModule(definition);
+        if (builder != null) builder.HoldPart(family);
     }
 
     void ApplyColor()

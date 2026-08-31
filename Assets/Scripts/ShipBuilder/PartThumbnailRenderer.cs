@@ -142,6 +142,11 @@ public class PartThumbnailRenderer : MonoBehaviour
 
             foreach (Collider collider in instance.GetComponentsInChildren<Collider>(true)) collider.enabled = false;
 
+            // The blockout models parked in the part's own sockets are not the part. Left in, every
+            // wing icon would be a wing wearing ghost guns, and the framing below would zoom out to
+            // hold them all.
+            SocketPlaceholder.SuppressAllIn(instance);
+
             FrameInstance(instance);
             rigCamera.targetTexture = target;
             rigCamera.enabled = true;

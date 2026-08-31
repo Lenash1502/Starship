@@ -12,45 +12,935 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd6c94e2b153dd04cb5089b486b5e91d, type: 3}
   m_Name: ShipModuleCatalog
   m_EditorClassIdentifier: Assembly-CSharp::ShipPartCatalog
-  sourceFolder: Assets/Prefabs/ShipModules
+  sourceFolder: Assets/Prefabs/ShipParts
   parts:
-  - prefab: {fileID: 772452928941822664, guid: 787c23dcceba6b24dacdc14231fa9bcb, type: 3}
+  - prefab: {fileID: 1157508662478091518, guid: a8d95c81d51db914c82db86cdcafa98a, type: 3}
     category: Core
+    modelName: Arrow
     variant: 0
     side: 0
-    displayName: Core
-  - prefab: {fileID: 1814195725462933274, guid: 52defb8b44d53be4aaa04ccf63855f82, type: 3}
-    category: Engine
+    displayName: Arrow
+  - prefab: {fileID: 2536739255447497364, guid: ceafb4e0b4b4c144f839d58e4d000bb3, type: 3}
+    category: Core
+    modelName: Blockade
     variant: 0
     side: 0
-    displayName: Engine
-  - prefab: {fileID: 7081783891273580251, guid: c211668e8b8bf8641a461e9c221a78d4, type: 3}
-    category: Fin
+    displayName: Blockade
+  - prefab: {fileID: 380221665303680708, guid: 61777588c63075f48bde703c719e0946, type: 3}
+    category: Core
+    modelName: Bulwark
     variant: 0
     side: 0
-    displayName: Fin
-  - prefab: {fileID: 1285317712255214904, guid: 26f766cf3940c1f4f8eec6f624639296, type: 3}
-    category: Plasma
+    displayName: Bulwark
+  - prefab: {fileID: 5924635574795773353, guid: 9ff61f47faf16e34d9d599bde2139f54, type: 3}
+    category: Core
+    modelName: Carapace
     variant: 0
     side: 0
-    displayName: Plasma
-  - prefab: {fileID: 1488079672140196605, guid: 0b638652c09e35045a2f39603cfff2fa, type: 3}
-    category: PrimaryWeapon
+    displayName: Carapace
+  - prefab: {fileID: 173697500307729776, guid: 4d936deb2d558d44490434ec4c973457, type: 3}
+    category: Core
+    modelName: Centurion
     variant: 0
     side: 0
-    displayName: Primary Weapon
-  - prefab: {fileID: 256680623298264474, guid: 001f03b325cdb1443b844e07b2109390, type: 3}
+    displayName: Centurion
+  - prefab: {fileID: 5306517757295610897, guid: ffe8f4e3901e73c44a95b8f61669c1d0, type: 3}
+    category: Core
+    modelName: Citadel
+    variant: 0
+    side: 0
+    displayName: Citadel
+  - prefab: {fileID: 8130827126909776170, guid: fcc8cfb1fc9cce248a0a4060a1b942e6, type: 3}
+    category: Core
+    modelName: CrossJack
+    variant: 0
+    side: 0
+    displayName: CrossJack
+  - prefab: {fileID: 232092780456889185, guid: ce6b04efdccd21a4b94c780c368d8bb4, type: 3}
+    category: Core
+    modelName: Dreadnought
+    variant: 0
+    side: 0
+    displayName: Dreadnought
+  - prefab: {fileID: 3708797861695536259, guid: a8eae7814901e89498c92b0fd6467d8b, type: 3}
+    category: Core
+    modelName: EscortRun
+    variant: 0
+    side: 0
+    displayName: EscortRun
+  - prefab: {fileID: 3058570801131505416, guid: ca033d5f603baf64eaad386b8db5b461, type: 3}
+    category: Core
+    modelName: Framework
+    variant: 0
+    side: 0
+    displayName: Framework
+  - prefab: {fileID: 1397041102974947728, guid: ff688e0176e4f3c47b14dd8db96979f8, type: 3}
+    category: Core
+    modelName: Gunship
+    variant: 0
+    side: 0
+    displayName: Gunship
+  - prefab: {fileID: 4293333925570515308, guid: a804264e1314ee241885d03aeec13314, type: 3}
+    category: Core
+    modelName: Interceptor
+    variant: 0
+    side: 0
+    displayName: Interceptor
+  - prefab: {fileID: 2877633355800238006, guid: 95904fa8212fb4e49bcfae7563229ec9, type: 3}
+    category: Core
+    modelName: Lancer
+    variant: 0
+    side: 0
+    displayName: Lancer
+  - prefab: {fileID: 595073278880210943, guid: f165e20bafea9fa4f9988ffd47aa4d1a, type: 3}
+    category: Core
+    modelName: Mainframe
+    variant: 0
+    side: 0
+    displayName: Mainframe
+  - prefab: {fileID: 8859077261433743527, guid: 1c872975d98e05443a141e5187331d4f, type: 3}
+    category: Core
+    modelName: Myrmidon
+    variant: 0
+    side: 0
+    displayName: Myrmidon
+  - prefab: {fileID: 7224788507349223865, guid: 55ca8e3908ad97948bb0be6034d4d2d0, type: 3}
+    category: Core
+    modelName: Orion
+    variant: 0
+    side: 0
+    displayName: Orion
+  - prefab: {fileID: 4964835298750541844, guid: ba32ae49247e7944b93bd601108dcc88, type: 3}
+    category: Core
+    modelName: Paladin
+    variant: 0
+    side: 0
+    displayName: Paladin
+  - prefab: {fileID: 6215345068554313143, guid: 36dfaa546450f6f439eb9f1d20d0e71a, type: 3}
+    category: Core
+    modelName: Raider
+    variant: 0
+    side: 0
+    displayName: Raider
+  - prefab: {fileID: 4357565528389077118, guid: 66245640714ded94181cd012115b8183, type: 3}
+    category: Core
+    modelName: Recon
+    variant: 0
+    side: 0
+    displayName: Recon
+  - prefab: {fileID: 2264592145283053448, guid: 77496f85c250c454487c8f720d85b67d, type: 3}
+    category: Core
+    modelName: Ronin
+    variant: 0
+    side: 0
+    displayName: Ronin
+  - prefab: {fileID: 5358159055018045696, guid: 9c6c1bb038f724d4d8a744cf05c4b929, type: 3}
+    category: Core
+    modelName: Scarab
+    variant: 0
+    side: 0
+    displayName: Scarab
+  - prefab: {fileID: 3379305806517779046, guid: d5c01ec645d06cc4bab9fafa2ddecd0f, type: 3}
+    category: Core
+    modelName: Skeleton
+    variant: 0
+    side: 0
+    displayName: Skeleton
+  - prefab: {fileID: 8398528395548552473, guid: ac1d041cfb00b1a40abf95192b79f78c, type: 3}
+    category: Core
+    modelName: Slicer
+    variant: 0
+    side: 0
+    displayName: Slicer
+  - prefab: {fileID: 5700082450479205444, guid: 9fbee3f8479f6ad43ac731b4754b5c6d, type: 3}
+    category: Core
+    modelName: SpitFire
+    variant: 0
+    side: 0
+    displayName: SpitFire
+  - prefab: {fileID: 2669234144418760003, guid: f2e869ff4c547ae4cb4c26d16f9a3157, type: 3}
+    category: Core
+    modelName: Stiletto
+    variant: 0
+    side: 0
+    displayName: Stiletto
+  - prefab: {fileID: 3667364894458306634, guid: 7425b3e3e0166294baaf3603d898c22d, type: 3}
+    category: Core
+    modelName: Turbine
+    variant: 0
+    side: 0
+    displayName: Turbine
+  - prefab: {fileID: 3438758564777582808, guid: 3537e9e85fcc60242b4ba72f77c9e01f, type: 3}
+    category: Core
+    modelName: Turtle
+    variant: 0
+    side: 0
+    displayName: Turtle
+  - prefab: {fileID: 5380684974496879294, guid: c9963db6e71d2a843a4b573f47f4fbd7, type: 3}
+    category: Core
+    modelName: Viper
+    variant: 0
+    side: 0
+    displayName: Viper
+  - prefab: {fileID: 5345720164121099565, guid: 0e55ea7c5f042b1478de6550c887d8b0, type: 3}
+    category: Core
+    modelName: Wraith
+    variant: 0
+    side: 0
+    displayName: Wraith
+  - prefab: {fileID: 7938157987606010282, guid: e075789d584837c4aa24098daf446206, type: 3}
+    category: Core
+    modelName: Wyvern
+    variant: 0
+    side: 0
+    displayName: Wyvern
+  - prefab: {fileID: 4465964037647942524, guid: 71ab6bbd4e8aa334bbd5a0efd3b507bd, type: 3}
+    category: CoreAttachment
+    modelName: CoreAttachment
+    variant: 0
+    side: 0
+    displayName: CoreAttachment
+  - prefab: {fileID: 5982537720238196324, guid: ad47f8c2027387e478a421d1c547d784, type: 3}
+    category: ModuleConnection
+    modelName: Escort
+    variant: 0
+    side: 1
+    displayName: Escort L
+  - prefab: {fileID: 902116909956738863, guid: e6a296c1b35d4ac408784bd16df85d03, type: 3}
+    category: ModuleConnection
+    modelName: Escort
+    variant: 0
+    side: 2
+    displayName: Escort R
+  - prefab: {fileID: 5843568003453552087, guid: 727a133879525d340aa29495c6b26a6c, type: 3}
+    category: ModuleConnection
+    modelName: GriffinMultirole
+    variant: 0
+    side: 1
+    displayName: GriffinMultirole L
+  - prefab: {fileID: 284172993854567060, guid: 9ef859f388929a34a969363694253f9d, type: 3}
+    category: ModuleConnection
+    modelName: GriffinMultirole
+    variant: 0
+    side: 2
+    displayName: GriffinMultirole R
+  - prefab: {fileID: 8031424727662030383, guid: 5d6bbc9d39d669441a2d577a89a273af, type: 3}
+    category: Wing
+    modelName: Aegis
+    variant: 0
+    side: 1
+    displayName: Aegis L
+  - prefab: {fileID: 6758620557358301519, guid: e2469144c5d60054aaaf74ee80eabbf8, type: 3}
+    category: Wing
+    modelName: Aegis
+    variant: 0
+    side: 2
+    displayName: Aegis R
+  - prefab: {fileID: 198789590071165874, guid: 1128811ecef60fc4291b07fede3fdd99, type: 3}
+    category: Wing
+    modelName: Broadsword
+    variant: 0
+    side: 1
+    displayName: Broadsword L
+  - prefab: {fileID: 7857960404881296274, guid: db29e41132583c34b8a455fd7a2dc0d9, type: 3}
+    category: Wing
+    modelName: Broadsword
+    variant: 0
+    side: 2
+    displayName: Broadsword R
+  - prefab: {fileID: 6296826984705714659, guid: 9fad0f29edea14f4b92b3aba406c3b97, type: 3}
+    category: Wing
+    modelName: Canard
+    variant: 0
+    side: 1
+    displayName: Canard L
+  - prefab: {fileID: 7002028383825110790, guid: 6fb02010bfd97c94784fefeb62dd4591, type: 3}
+    category: Wing
+    modelName: Canard
+    variant: 0
+    side: 2
+    displayName: Canard R
+  - prefab: {fileID: 9144016149885232454, guid: fdac08aa16a532c4e982c2921c0e1b63, type: 3}
+    category: Wing
+    modelName: Corsair
+    variant: 0
+    side: 1
+    displayName: Corsair L
+  - prefab: {fileID: 4031114487573064399, guid: 0ee7411160caafa4e8a7d1314f4716c8, type: 3}
+    category: Wing
+    modelName: Corsair
+    variant: 0
+    side: 2
+    displayName: Corsair R
+  - prefab: {fileID: 4959458455195909073, guid: dfc4245f00704b2439e565d588c8acef, type: 3}
+    category: Wing
+    modelName: Delta
+    variant: 0
+    side: 1
+    displayName: Delta L
+  - prefab: {fileID: 9018934946216533684, guid: 860ffd464b393fc44b116c035ed1500a, type: 3}
+    category: Wing
+    modelName: Delta
+    variant: 0
+    side: 2
+    displayName: Delta R
+  - prefab: {fileID: 6338667141004956560, guid: e653dfec181db824e8fcca57ca19467c, type: 3}
+    category: Wing
+    modelName: Eclipse
+    variant: 0
+    side: 1
+    displayName: Eclipse L
+  - prefab: {fileID: 4915508720238101937, guid: 7250d5d88f005a740baa844cfa427952, type: 3}
+    category: Wing
+    modelName: Eclipse
+    variant: 0
+    side: 2
+    displayName: Eclipse R
+  - prefab: {fileID: 5713661839205328854, guid: 4a44dae7dbf98b7419308f35cd554e70, type: 3}
+    category: Wing
+    modelName: Halberd
+    variant: 0
+    side: 1
+    displayName: Halberd L
+  - prefab: {fileID: 2731257200706963865, guid: 8639041b8c2f3094d9bf4906143b2a78, type: 3}
+    category: Wing
+    modelName: Halberd
+    variant: 0
+    side: 2
+    displayName: Halberd R
+  - prefab: {fileID: 5218678628996952071, guid: 13bb12d5edba4a0418d3ff11d3643401, type: 3}
+    category: Wing
+    modelName: Javelin
+    variant: 0
+    side: 1
+    displayName: Javelin L
+  - prefab: {fileID: 4851469960853292873, guid: 5a2e2a4659cc7464abc5c52eaf028cd7, type: 3}
+    category: Wing
+    modelName: Javelin
+    variant: 0
+    side: 2
+    displayName: Javelin R
+  - prefab: {fileID: 5581102917125175921, guid: 9852e005df65eba4c8c0db6a9ed2ef7e, type: 3}
+    category: Wing
+    modelName: Kestrel
+    variant: 0
+    side: 1
+    displayName: Kestrel L
+  - prefab: {fileID: 1554598582268957227, guid: 73e5b9a04d3a16440aafabe048033789, type: 3}
+    category: Wing
+    modelName: Kestrel
+    variant: 0
+    side: 2
+    displayName: Kestrel R
+  - prefab: {fileID: 8965160012926603372, guid: 1b6c3fcd6b0c6fc4d858c1e931c70401, type: 3}
+    category: Wing
+    modelName: Mako
+    variant: 0
+    side: 1
+    displayName: Mako L
+  - prefab: {fileID: 864594627541013541, guid: 6c673f6e0b41c484fbb7e7518f2f953f, type: 3}
+    category: Wing
+    modelName: Mako
+    variant: 0
+    side: 2
+    displayName: Mako R
+  - prefab: {fileID: 5009905548013880127, guid: b7425592e7ce1c040aeaf124d666cf40, type: 3}
+    category: Wing
+    modelName: Mantis
+    variant: 0
+    side: 1
+    displayName: Mantis L
+  - prefab: {fileID: 527775730027430754, guid: e4e4e7e3a481023439b2eb17d038438e, type: 3}
+    category: Wing
+    modelName: Mantis
+    variant: 0
+    side: 2
+    displayName: Mantis R
+  - prefab: {fileID: 6376079496656369423, guid: 06d2014a61637b94b8829b5ab91e811b, type: 3}
+    category: Wing
+    modelName: Omni-Vector
+    variant: 0
+    side: 1
+    displayName: Omni-Vector L
+  - prefab: {fileID: 3776887263715875790, guid: 0e008a57fa489f24f94a39b3a98db3d6, type: 3}
+    category: Wing
+    modelName: Omni-Vector
+    variant: 0
+    side: 2
+    displayName: Omni-Vector R
+  - prefab: {fileID: 5668385503926856132, guid: ee438e511f291ca45bd8d74c37533994, type: 3}
+    category: Wing
+    modelName: Outrider
+    variant: 0
+    side: 1
+    displayName: Outrider L
+  - prefab: {fileID: 1728841892528172368, guid: 200a326c74064004e820fbdb6010b09d, type: 3}
+    category: Wing
+    modelName: Outrider
+    variant: 0
+    side: 2
+    displayName: Outrider R
+  - prefab: {fileID: 8852510874194378599, guid: 6445998f5139c694484786dac3383e32, type: 3}
+    category: Wing
+    modelName: Phantom
+    variant: 0
+    side: 1
+    displayName: Phantom L
+  - prefab: {fileID: 456012621352362047, guid: fefb80d3be468e34b96914f940fe8759, type: 3}
+    category: Wing
+    modelName: Phantom
+    variant: 0
+    side: 2
+    displayName: Phantom R
+  - prefab: {fileID: 4391574896747818971, guid: e181afad6034eba45a2455e4b6db1f49, type: 3}
+    category: Wing
+    modelName: Pylon
+    variant: 0
+    side: 1
+    displayName: Pylon L
+  - prefab: {fileID: 2106665594679379293, guid: 7b66d8a4110650b44b5fe096add438ff, type: 3}
+    category: Wing
+    modelName: Pylon
+    variant: 0
+    side: 2
+    displayName: Pylon R
+  - prefab: {fileID: 778913471166648910, guid: 1b9575bced1ae144eb4bf5c63cc40942, type: 3}
+    category: Wing
+    modelName: Razorback
+    variant: 0
+    side: 1
+    displayName: Razorback L
+  - prefab: {fileID: 2498760175203549567, guid: e297f913d9fe4b2429ef3d5239431b8a, type: 3}
+    category: Wing
+    modelName: Razorback
+    variant: 0
+    side: 2
+    displayName: Razorback R
+  - prefab: {fileID: 3431875353775385600, guid: c66587432ad1b7e4aa329007f1ffbc44, type: 3}
+    category: Wing
+    modelName: Shrike
+    variant: 0
+    side: 1
+    displayName: Shrike L
+  - prefab: {fileID: 6241486416368354864, guid: 3d764f7075c4724458bd3bfb782908f8, type: 3}
+    category: Wing
+    modelName: Shrike
+    variant: 0
+    side: 2
+    displayName: Shrike R
+  - prefab: {fileID: 7876957805098114315, guid: 90fede61453a1f741b93521c128e643c, type: 3}
+    category: Wing
+    modelName: Talon
+    variant: 0
+    side: 1
+    displayName: Talon L
+  - prefab: {fileID: 24848212741158195, guid: 92dc38548e2cc6f479a95d74aa0c9a88, type: 3}
+    category: Wing
+    modelName: Talon
+    variant: 0
+    side: 2
+    displayName: Talon R
+  - prefab: {fileID: 2513779490987327800, guid: bb37e74427b801043aebcaa7ee191fc3, type: 3}
+    category: Wing
+    modelName: Tri-Foil
+    variant: 0
+    side: 1
+    displayName: Tri-Foil L
+  - prefab: {fileID: 7155375163905254480, guid: cdf8bc0b1b2ebd24b883f02164f43cc4, type: 3}
+    category: Wing
+    modelName: Tri-Foil
+    variant: 0
+    side: 2
+    displayName: Tri-Foil R
+  - prefab: {fileID: 8738264127770795969, guid: 0a368b44be8f01245844474dce26323a, type: 3}
+    category: Wing
+    modelName: Trident
+    variant: 0
+    side: 1
+    displayName: Trident L
+  - prefab: {fileID: 8733485765528918997, guid: 53aa05e48246265448fc907034d4ef0d, type: 3}
+    category: Wing
+    modelName: Trident
+    variant: 0
+    side: 2
+    displayName: Trident R
+  - prefab: {fileID: 8127645448434004098, guid: 709750faae0123046a62fdc199261b0f, type: 3}
+    category: Wing
+    modelName: Twin-Vane
+    variant: 0
+    side: 1
+    displayName: Twin-Vane L
+  - prefab: {fileID: 9080066452790653524, guid: 3d540913d832b494bb68e1107339dd20, type: 3}
+    category: Wing
+    modelName: Twin-Vane
+    variant: 0
+    side: 2
+    displayName: Twin-Vane R
+  - prefab: {fileID: 5309613514209129178, guid: 0ebaa618e8f5013448a81e142d32a63a, type: 3}
+    category: Wing
+    modelName: V-Strike
+    variant: 0
+    side: 1
+    displayName: V-Strike L
+  - prefab: {fileID: 3281750266291731696, guid: 6e2a98c8a6f02714287b071a1ef75909, type: 3}
+    category: Wing
+    modelName: V-Strike
+    variant: 0
+    side: 2
+    displayName: V-Strike R
+  - prefab: {fileID: 7249470151668976240, guid: 4dbbf29b4d749844c9466ba7c862df8a, type: 3}
+    category: Wing
+    modelName: Valkyrie
+    variant: 0
+    side: 1
+    displayName: Valkyrie L
+  - prefab: {fileID: 7690003763970355580, guid: a83726d234238564193c1d9b0c0da031, type: 3}
+    category: Wing
+    modelName: Valkyrie
+    variant: 0
+    side: 2
+    displayName: Valkyrie R
+  - prefab: {fileID: 3544584941408506954, guid: 94f52ccd85bfd3846b6bdadd224229c6, type: 3}
+    category: Wing
+    modelName: Vanguard
+    variant: 0
+    side: 1
+    displayName: Vanguard L
+  - prefab: {fileID: 8877332180287071626, guid: ffe2971f3b17ced41b53bc2ad9ac313e, type: 3}
+    category: Wing
+    modelName: Vanguard
+    variant: 0
+    side: 2
+    displayName: Vanguard R
+  - prefab: {fileID: 192398778089436546, guid: 1c1129cadbe68dd4980768c9bb0bf545, type: 3}
+    category: Wing
+    modelName: Vector
+    variant: 0
+    side: 1
+    displayName: Vector L
+  - prefab: {fileID: 999715717594053574, guid: c4f3e585d6e5c6344bf3adb3776d32f1, type: 3}
+    category: Wing
+    modelName: Vector
+    variant: 0
+    side: 2
+    displayName: Vector R
+  - prefab: {fileID: 243313217141285792, guid: 7fa7eb1584f7a0a4da6ab0ea5ec61200, type: 3}
     category: Tail
+    modelName: Nacelle
+    variant: 0
+    side: 1
+    displayName: Nacelle L
+  - prefab: {fileID: 7699687289667401764, guid: 6c6ace12618d9bc47838f717ad71ac55, type: 3}
+    category: Tail
+    modelName: Nacelle
+    variant: 0
+    side: 2
+    displayName: Nacelle R
+  - prefab: {fileID: 5651490066483633156, guid: 19fb0c0021d4a184299999e3c8d59687, type: 3}
+    category: Tail
+    modelName: Nomad
+    variant: 0
+    side: 1
+    displayName: Nomad L
+  - prefab: {fileID: 3641034128390655388, guid: 99ab97348f68b0142bbb2a529380e73f, type: 3}
+    category: Tail
+    modelName: Nomad
+    variant: 0
+    side: 2
+    displayName: Nomad R
+  - prefab: {fileID: 1884876860393096044, guid: b209d41038f50c442b84b01112798cbd, type: 3}
+    category: Tail
+    modelName: Raptor
+    variant: 0
+    side: 1
+    displayName: Raptor L
+  - prefab: {fileID: 5596115329769489345, guid: 8b2e1beaca35a024b8b2cb09ea603470, type: 3}
+    category: Tail
+    modelName: Raptor
+    variant: 0
+    side: 2
+    displayName: Raptor R
+  - prefab: {fileID: 5800724450601684637, guid: d493ea81a800365498f0dfbc607fdc08, type: 3}
+    category: Fin
+    modelName: Avalanche
+    variant: 0
+    side: 1
+    displayName: Avalanche L
+  - prefab: {fileID: 9106174415650079938, guid: a15bdfde3e641f14881839cc097c30ab, type: 3}
+    category: Fin
+    modelName: Avalanche
+    variant: 0
+    side: 2
+    displayName: Avalanche R
+  - prefab: {fileID: 1152773057990501528, guid: 49b4c79e4dc80a746b9cc3afac7ed25c, type: 3}
+    category: Fin
+    modelName: Enforcer
+    variant: 0
+    side: 1
+    displayName: Enforcer L
+  - prefab: {fileID: 4376774887421302063, guid: 224f8135e8b88bb4ea0d6a0dd38e1229, type: 3}
+    category: Fin
+    modelName: Enforcer
+    variant: 0
+    side: 2
+    displayName: Enforcer R
+  - prefab: {fileID: 2093310921632646373, guid: 7937bc0fc4d7f2d43b5aa9b1e8a0e297, type: 3}
+    category: Fin
+    modelName: Infiltrator
+    variant: 0
+    side: 1
+    displayName: Infiltrator L
+  - prefab: {fileID: 6890606595447253466, guid: 3495017969654e043945380d5b721ee1, type: 3}
+    category: Fin
+    modelName: Infiltrator
+    variant: 0
+    side: 2
+    displayName: Infiltrator R
+  - prefab: {fileID: 821086742291049970, guid: 79a494f1dc080324f9712a88892e3512, type: 3}
+    category: Fin
+    modelName: Kraken
+    variant: 0
+    side: 1
+    displayName: Kraken L
+  - prefab: {fileID: 5771152141166949189, guid: 88947c26ca5062f4fb868d0fd1f93152, type: 3}
+    category: Fin
+    modelName: Kraken
+    variant: 0
+    side: 2
+    displayName: Kraken R
+  - prefab: {fileID: 3095069167953153728, guid: 5e365c85c9e7e604baf1b168dcf5380e, type: 3}
+    category: Engine
+    modelName: Apex
     variant: 0
     side: 0
-    displayName: Tail
-  - prefab: {fileID: 1650889170549615883, guid: 14033e59a476467488f4163bde3133ee, type: 3}
+    displayName: Apex
+  - prefab: {fileID: 7594347409955476164, guid: 2d9434cd0c5bfe1449e7aeff7156dcbe, type: 3}
+    category: Engine
+    modelName: Crucible
+    variant: 0
+    side: 1
+    displayName: Crucible L
+  - prefab: {fileID: 1058188551168709607, guid: d8c7950db34420042af6d7dc6c4d10c3, type: 3}
+    category: Engine
+    modelName: Crucible
+    variant: 0
+    side: 2
+    displayName: Crucible R
+  - prefab: {fileID: 6681273655512704351, guid: d8f5e9c5f721d5b478b61ff31f7d1032, type: 3}
+    category: Engine
+    modelName: Graviton
+    variant: 0
+    side: 1
+    displayName: Graviton L
+  - prefab: {fileID: 5390407848952938888, guid: 7f7c219ade5278d4dbc2110520ba9a91, type: 3}
+    category: Engine
+    modelName: Graviton
+    variant: 0
+    side: 2
+    displayName: Graviton R
+  - prefab: {fileID: 173313816268454272, guid: 7643767f6367247469c08d2e306e11f8, type: 3}
+    category: Engine
+    modelName: Helios
+    variant: 0
+    side: 0
+    displayName: Helios
+  - prefab: {fileID: 5015365081734300861, guid: 57313b42eb294c747b9e02d6343266ab, type: 3}
+    category: Engine
+    modelName: Neutron-Flux
+    variant: 0
+    side: 0
+    displayName: Neutron-Flux
+  - prefab: {fileID: 3963427784116475538, guid: 7861381d2b266154aaa1df784213d410, type: 3}
+    category: Engine
+    modelName: Obsidian-B
+    variant: 0
+    side: 1
+    displayName: Obsidian-B L
+  - prefab: {fileID: 3797187300065730385, guid: 5887c8763348c394fa82d6ab3f11c813, type: 3}
+    category: Engine
+    modelName: Obsidian-B
+    variant: 0
+    side: 2
+    displayName: Obsidian-B R
+  - prefab: {fileID: 3799617762477880850, guid: eb555662a3f529d43843fb3e3318bc01, type: 3}
+    category: Engine
+    modelName: Pulse-Wave
+    variant: 0
+    side: 0
+    displayName: Pulse-Wave
+  - prefab: {fileID: 5737004531738814011, guid: 4482632eef4954b45a73914af5cd8a18, type: 3}
+    category: Engine
+    modelName: Q Propulsor
+    variant: 0
+    side: 1
+    displayName: Q Propulsor L
+  - prefab: {fileID: 7224916324362212682, guid: a7b769055601b3f48abce35855d3fbeb, type: 3}
+    category: Engine
+    modelName: Q Propulsor
+    variant: 0
+    side: 2
+    displayName: Q Propulsor R
+  - prefab: {fileID: 7011990072913678452, guid: af4e2aa975653b9489d4ee4dd135f254, type: 3}
+    category: Engine
+    modelName: Quasar
+    variant: 0
+    side: 1
+    displayName: Quasar L
+  - prefab: {fileID: 719508115412800297, guid: 67275061d1247b0468e36f70d5238325, type: 3}
+    category: Engine
+    modelName: Quasar
+    variant: 0
+    side: 2
+    displayName: Quasar R
+  - prefab: {fileID: 4926419466634891073, guid: 175523da7fb9f5c4c9374e5d0c869f50, type: 3}
+    category: Engine
+    modelName: Radiant
+    variant: 0
+    side: 1
+    displayName: Radiant L
+  - prefab: {fileID: 4872845240214472219, guid: f20f39ee9b8634f45808ff49c31ecbbe, type: 3}
+    category: Engine
+    modelName: Radiant
+    variant: 0
+    side: 2
+    displayName: Radiant R
+  - prefab: {fileID: 8726082181360124346, guid: b152ec9cc39781f45b07718585a75c96, type: 3}
+    category: Engine
+    modelName: Vindicator
+    variant: 0
+    side: 1
+    displayName: Vindicator L
+  - prefab: {fileID: 2909908044603869722, guid: aefc083ceb75b744a9affd3ada4bc4af, type: 3}
+    category: Engine
+    modelName: Vindicator
+    variant: 0
+    side: 2
+    displayName: Vindicator R
+  - prefab: {fileID: 8956848892982308740, guid: 5f511f45dbd5ff04fa376d7fea7be21f, type: 3}
+    category: Engine
+    modelName: Void-Jet
+    variant: 0
+    side: 1
+    displayName: Void-Jet L
+  - prefab: {fileID: 1603652494724211419, guid: 2e381df9d0fdcca46aac1293dd2bd1c5, type: 3}
+    category: Engine
+    modelName: Void-Jet
+    variant: 0
+    side: 2
+    displayName: Void-Jet R
+  - prefab: {fileID: 4987336739412965853, guid: 00513ea93141fcb418aeb2a903ce96bb, type: 3}
+    category: Engine
+    modelName: Zephyr
+    variant: 0
+    side: 1
+    displayName: Zephyr L
+  - prefab: {fileID: 1565270922370056958, guid: 071ee0c1ca1a592448d8c8ed9bbd1624, type: 3}
+    category: Engine
+    modelName: Zephyr
+    variant: 0
+    side: 2
+    displayName: Zephyr R
+  - prefab: {fileID: 8782238499546748614, guid: 9b10685576a41444dae76669c135b24b, type: 3}
     category: Thruster
+    modelName: Thruster
     variant: 0
     side: 0
     displayName: Thruster
-  - prefab: {fileID: 5598171104485489926, guid: 019aecc58fccbd147a406ccd00263165, type: 3}
-    category: Wing
+  - prefab: {fileID: 5277324525237891630, guid: e71f6abe38ff8054a8ce5495726c1584, type: 3}
+    category: Booster
+    modelName: Nova
+    variant: 0
+    side: 1
+    displayName: Nova L
+  - prefab: {fileID: 6331885933359873958, guid: f3cb0a427ec725d45925428aa9a40979, type: 3}
+    category: Booster
+    modelName: Nova
+    variant: 0
+    side: 2
+    displayName: Nova R
+  - prefab: {fileID: 59931926705798212, guid: 3a62bf9c604f3684e9cfbe7ad5bcefa5, type: 3}
+    category: Booster
+    modelName: Quasar
+    variant: 0
+    side: 1
+    displayName: Quasar L
+  - prefab: {fileID: 1699359903510326169, guid: daa08463d2defdc47b57ff1f0df15dbc, type: 3}
+    category: Booster
+    modelName: Quasar
+    variant: 0
+    side: 2
+    displayName: Quasar R
+  - prefab: {fileID: 4727278813492484687, guid: 0ee6c64b667a8434ca536c4f5d9c84d4, type: 3}
+    category: Reactor
+    modelName: Argon
     variant: 0
     side: 0
-    displayName: Wing
+    displayName: Argon
+  - prefab: {fileID: 3583972000162674998, guid: 59b0c29efe9d6b340b69cc95a5617597, type: 3}
+    category: Reactor
+    modelName: BlackStar
+    variant: 0
+    side: 0
+    displayName: BlackStar
+  - prefab: {fileID: 8116632014776771747, guid: 2fd56bce3b7bbfc4fa50956246e1236a, type: 3}
+    category: Reactor
+    modelName: Photon
+    variant: 0
+    side: 0
+    displayName: Photon
+  - prefab: {fileID: 7689126603559511973, guid: ebec8bb78eb0bfa48b6fe6e995fb35ed, type: 3}
+    category: Reactor
+    modelName: Stella
+    variant: 0
+    side: 0
+    displayName: Stella
+  - prefab: {fileID: 1488079672140196605, guid: c0899db79becd7440bacd0a36891554b, type: 3}
+    category: PrimaryWeapon
+    modelName: PrimaryWeapon
+    variant: 0
+    side: 0
+    displayName: PrimaryWeapon
+  - prefab: {fileID: 5519890676969183233, guid: ed5869e3724ea754eadd4b7d2f4b88da, type: 3}
+    category: SecondaryWeapon
+    modelName: Axion
+    variant: 0
+    side: 1
+    displayName: Axion L
+  - prefab: {fileID: 7746092821538676706, guid: 160095e84fc74874d80b48f1ac59b43b, type: 3}
+    category: SecondaryWeapon
+    modelName: Axion
+    variant: 0
+    side: 2
+    displayName: Axion R
+  - prefab: {fileID: 5609187426141290321, guid: d361d6a904c2e4b469b957b574b30217, type: 3}
+    category: SecondaryWeapon
+    modelName: Bastion
+    variant: 0
+    side: 1
+    displayName: Bastion L
+  - prefab: {fileID: 1682686004585714353, guid: c5df809d0084eb84eb09eb0fa6e15141, type: 3}
+    category: SecondaryWeapon
+    modelName: Bastion
+    variant: 0
+    side: 2
+    displayName: Bastion R
+  - prefab: {fileID: 6323525557574764342, guid: df8daf86e59d6234294aae99898dc260, type: 3}
+    category: SecondaryWeapon
+    modelName: Bismuth
+    variant: 0
+    side: 1
+    displayName: Bismuth L
+  - prefab: {fileID: 1924296303328258085, guid: 8df0ee4179287ba499aec408a3c1e9a4, type: 3}
+    category: SecondaryWeapon
+    modelName: Bismuth
+    variant: 0
+    side: 2
+    displayName: Bismuth R
+  - prefab: {fileID: 4044447927549102625, guid: d4d06fd8d62ae4240a5646e5bba370ac, type: 3}
+    category: SecondaryWeapon
+    modelName: Chronos
+    variant: 0
+    side: 1
+    displayName: Chronos L
+  - prefab: {fileID: 6720504416272215992, guid: d6eac62b6e4c0cc4383db552e3c12e8b, type: 3}
+    category: SecondaryWeapon
+    modelName: Chronos
+    variant: 0
+    side: 2
+    displayName: Chronos R
+  - prefab: {fileID: 2968843940677581905, guid: 24903aec6d5c7cc47bddbf50fef6f1f9, type: 3}
+    category: SecondaryWeapon
+    modelName: Cobalt
+    variant: 0
+    side: 1
+    displayName: Cobalt L
+  - prefab: {fileID: 8115605239137351756, guid: bd075c41e536e2846947628baaba5619, type: 3}
+    category: SecondaryWeapon
+    modelName: Cobalt
+    variant: 0
+    side: 2
+    displayName: Cobalt R
+  - prefab: {fileID: 953139233603170315, guid: 63f546504b644484da9d2ce9975a2253, type: 3}
+    category: SecondaryWeapon
+    modelName: Erebus
+    variant: 0
+    side: 1
+    displayName: Erebus L
+  - prefab: {fileID: 8820164535734272218, guid: 094b521525205704193752978a6ad019, type: 3}
+    category: SecondaryWeapon
+    modelName: Erebus
+    variant: 0
+    side: 2
+    displayName: Erebus R
+  - prefab: {fileID: 4317693033527470507, guid: 05344f75ef0e1de40becf3bea33a6da1, type: 3}
+    category: SecondaryWeapon
+    modelName: Fractal
+    variant: 0
+    side: 1
+    displayName: Fractal L
+  - prefab: {fileID: 8809967139263691174, guid: f12c471abe2c12947afd4e48d937cc70, type: 3}
+    category: SecondaryWeapon
+    modelName: Fractal
+    variant: 0
+    side: 2
+    displayName: Fractal R
+  - prefab: {fileID: 8979125386214491226, guid: fdc71ab6b137f0f45ac0d053969b8fd4, type: 3}
+    category: SecondaryWeapon
+    modelName: Hyperion
+    variant: 0
+    side: 1
+    displayName: Hyperion L
+  - prefab: {fileID: 5319458477484917998, guid: 4643624d0dd0a3e45a1a6569f40d49a1, type: 3}
+    category: SecondaryWeapon
+    modelName: Hyperion
+    variant: 0
+    side: 2
+    displayName: Hyperion R
+  - prefab: {fileID: 1958830599371019308, guid: c7c1c0f0dca36d44d8e11476f09fdcb6, type: 3}
+    category: SecondaryWeapon
+    modelName: Paralax
+    variant: 0
+    side: 1
+    displayName: Paralax L
+  - prefab: {fileID: 610818170765491413, guid: 0e13badc3e46ca54b9a87941a0a2a4e4, type: 3}
+    category: SecondaryWeapon
+    modelName: Paralax
+    variant: 0
+    side: 2
+    displayName: Paralax R
+  - prefab: {fileID: 3013060506879244859, guid: 641ca037ea47ae54c9f4307d495be999, type: 3}
+    category: SecondaryWeapon
+    modelName: Synapse
+    variant: 0
+    side: 1
+    displayName: Synapse L
+  - prefab: {fileID: 4524081929895328422, guid: 453c3121a9abe8546a259c3694e7d109, type: 3}
+    category: SecondaryWeapon
+    modelName: Synapse
+    variant: 0
+    side: 2
+    displayName: Synapse R
+  - prefab: {fileID: 3546530942979409621, guid: be0a0871fa9cba9479407bc56c512d36, type: 3}
+    category: SecondaryWeapon
+    modelName: Tesseract
+    variant: 0
+    side: 1
+    displayName: Tesseract L
+  - prefab: {fileID: 6202476197838207342, guid: f86073090de149241a4ea3c439dc4806, type: 3}
+    category: SecondaryWeapon
+    modelName: Tesseract
+    variant: 0
+    side: 2
+    displayName: Tesseract R
+  - prefab: {fileID: 5719705831070138423, guid: e772bc5ce65cc6c41b484a898f1f78de, type: 3}
+    category: SpecialWeapon
+    modelName: Isotope
+    variant: 0
+    side: 1
+    displayName: Isotope L
+  - prefab: {fileID: 3035888775663044667, guid: 9bf4102035f40084bbff54dee3f0aef3, type: 3}
+    category: SpecialWeapon
+    modelName: Isotope
+    variant: 0
+    side: 2
+    displayName: Isotope R

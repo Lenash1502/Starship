@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: StarSparrow_Orange
   m_Shader: {fileID: -6465566751694194690, guid: c8b83d3b12ce2fb43a31e161ce2c5ce5, type: 3}
-  m_Parent: {fileID: 2100000, guid: dc60a1e64de33bb44979dad0c2529fa1, type: 2}
+  m_Parent: {fileID: 2100000, guid: 138dd97cb63790543aebb7ab1036fcb7, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
